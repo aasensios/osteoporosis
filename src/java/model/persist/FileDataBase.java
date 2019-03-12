@@ -1,4 +1,4 @@
-package model;
+package model.persist;
 
 import java.io.BufferedReader;
 import java.io.DataInputStream;
@@ -14,13 +14,13 @@ import java.util.List;
  *
  * @author alumne
  */
-public class DataBase {
+public class FileDataBase {
 
     //atributs
     private String fileName;
 
     //constructor
-    public DataBase(String fileName) {
+    public FileDataBase(String fileName) {
         this.fileName = fileName;
 
     }

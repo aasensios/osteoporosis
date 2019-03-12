@@ -1,22 +1,23 @@
-package model;
+package model.persist;
 
 import java.util.ArrayList;
 import java.util.List;
+import model.Patient;
 
 /**
- *
+ * Patient Data Access Object to connect to a FILE (as a simple database in CSV format).
  * @author Alejandro Asensio
  * @version 1.0, 2019-01-29
  */
-public class PatientDAO {
+public class PatientFileDAO {
 
-    private DataBase d; // object of class DataBase
+    private FileDataBase d; // object of class FileDataBase
 
-    public PatientDAO() {
+    public PatientFileDAO() {
     }
 
-    public PatientDAO(String path) {
-        d = new DataBase(path + "/files/osteoporosis.csv");
+    public PatientFileDAO(String path) {
+        d = new FileDataBase(path + "/files/osteoporosis.csv");
     }
 
     /**

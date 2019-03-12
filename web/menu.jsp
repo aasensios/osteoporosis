@@ -41,7 +41,7 @@
                 <!--<a class="dropdown-item" href="patient_controller?action=delete_form">Delete Patient</a>-->
               </div>
             </li>
-            <c:if test="${username == null && user.role == 'admin'}">
+            <c:if test="${logged_in && role == 'admin'}">
                 <li class="nav-item dropdown">
                   <a class="nav-link dropdown-toggle" href="#" id="dropdown02" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Users</a>
                   <div class="dropdown-menu" aria-labelledby="dropdown02">
@@ -54,10 +54,11 @@
             </c:if>
           </ul>
         </div>
-        <c:if test="${username == null}">
+        <c:if test="${!logged_in}">
             <a class="btn btn-primary my-2 my-sm-0" href='login.jsp'>Login</a>
         </c:if>
-        <c:if test="${username != null}">
+        <c:if test="${logged_in}">
+            <a class="btn text-success">${username}</a>
             <a class="btn btn-secondary my-2 my-sm-0" href='user_controller?action=logout'>Logout</a>
         </c:if>
         <!--        <form class="form-inline mt-2 mt-md-0">

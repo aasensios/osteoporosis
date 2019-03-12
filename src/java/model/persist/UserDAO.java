@@ -25,7 +25,7 @@ public class UserDAO {
 
         // estructura ordenada en ficheros de clase Property para guardar las sentencias SQL
         queries = new Properties();
-        PROPS_FILE = path + "/queries_on_categories.properties";
+        PROPS_FILE = path + "/resources/queries_on_users.properties";
         queries.load(new FileInputStream(PROPS_FILE));
 
     }
@@ -34,30 +34,56 @@ public class UserDAO {
         return queries.getProperty(queryName);
     }
 
-//    public ArrayList<User> listAll() {
-//        ArrayList<User> list = new ArrayList<>();
-//
-//        // si usamos un try con parentesis, no hace falta que tengamos un finally para cerrar la conexion, 
-//        // ya que los parentesis cierran la conexion automaticamente
-//        try (
-//                Connection conn = dataSource.getConnection();
-//                Statement st = conn.createStatement();
-//            ) {
-//            ResultSet res = st.executeQuery(getQuery("FIND_ALL"));
-//            while (res.next()) {
-//                User cat = new User();
-//                cat.setId(res.getInt("id"));
-//                cat.setDescription(res.getString("description"));
-//                list.add(cat);
-//            }
-//
-//        } catch (SQLException e) {
-//            list = new ArrayList<>();
-//        }
-//
-//        return list;
-//    }
+    /**
+     * Finds a user by its username and password inside the database.
+     *
+     * @param searchedUser
+     * @return
+     */
+    public User find(User searchedUser) {
+        User foundUser = null;
 
+        try (Connection conn = dataSource.getConnection();
+                PreparedStatement pst = conn.prepareStatement(getQuery("FIND"));) {
+            pst.setString(1, searchedUser.getUsername());
+            pst.setString(2, searchedUser.getPassword());
+            ResultSet res = pst.executeQuery();
+            while (res.next()) {
+                // Get all fields from the found user
+                foundUser = new User();
+                foundUser.setUsername(res.getString("username"));
+                foundUser.setPassword(res.getString("password"));
+                foundUser.setRole(res.getString("role"));
+            }
+        } catch (SQLException e) {
+        }
+
+        return foundUser;
+    }
+
+    public ArrayList<User> listAll() {
+        ArrayList<User> list = new ArrayList<>();
+
+        // si usamos un try con parentesis, no hace falta que tengamos un finally para cerrar la conexion, 
+        // ya que los parentesis cierran la conexion automaticamente
+        try (
+                Connection conn = dataSource.getConnection();
+                Statement st = conn.createStatement();
+            ) {
+            ResultSet res = st.executeQuery(getQuery("FIND_ALL"));
+            while (res.next()) {
+                User user = new User();
+                user.setUsername(res.getString("username"));
+                user.setPassword(res.getString("password"));
+                user.setRole(res.getString("role"));
+                list.add(user);
+            }
+        } catch (SQLException e) {
+        }
+
+        return list;
+    }
+    
 //    public int insert(User category) {
 //        int rowsAffected;
 //
@@ -71,7 +97,6 @@ public class UserDAO {
 //
 //        return rowsAffected;
 //    }
-
 //    public int update(User category) {
 //        int rowsAffected;
 //
@@ -86,11 +111,10 @@ public class UserDAO {
 //
 //        return rowsAffected;
 //    }
-
     /**
-     * 
+     *
      * @param category
-     * @return 1 if success, 
+     * @return 1 if success,
      */
 //    public int delete(User category) {
 //        int rowsAffected;

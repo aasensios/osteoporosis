@@ -25,7 +25,7 @@ public class PatientDAO {
         
         // estructura ordenada en ficheros de clase Property para guardar las sentencias SQL
         queries = new Properties();
-        PROPS_FILE = path + "/queries-on-patients.properties";
+        PROPS_FILE = path + "/resources/queries_on_patients.properties";
         queries.load(new FileInputStream(PROPS_FILE));
 
     }
@@ -59,8 +59,6 @@ public class PatientDAO {
                 list.add(patient);
             }
         } catch (SQLException e) {
-            list = new ArrayList<>();
-            System.out.println(e.getMessage());
         }
 
         return list;

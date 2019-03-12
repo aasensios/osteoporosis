@@ -1,25 +1,26 @@
-package model;
+package model.persist;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import model.User;
 
 /**
- * Classe que accedeix al recurs: el fitxer users.txt
+ * User Data Access Object to connect to a FILE (as a simple database in CSV format).
  *
  * @author Profes de DAW M07; modified by Alejandro Asensio
  * @version 2019-02-07
  */
-public class UserDAO {
+public class UserFileDAO {
 
     // atributo que será un objeto
-    private DataBase d;
+    private FileDataBase d;
 
-    public UserDAO() {
+    public UserFileDAO() {
     }
 
-    public UserDAO(String path) {
-        d = new DataBase(path + "/files/users.txt");
+    public UserFileDAO(String path) {
+        d = new FileDataBase(path + "/files/users.txt");
     }
 
     /**

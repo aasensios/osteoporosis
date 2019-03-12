@@ -37,7 +37,7 @@ public class PatientController extends HttpServlet {
             action = "";
         }
 
-        this.path = getServletContext().getRealPath("/WEB-INF/resources");
+        this.path = getServletContext().getRealPath("/WEB-INF/");
         this.patientDAO = new PatientDAO(path);
 
         switch (action) {
