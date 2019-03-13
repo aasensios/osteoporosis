@@ -33,9 +33,9 @@
                   <a class="nav-link dropdown-toggle" href="#" id="dropdown02" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Users</a>
                   <div class="dropdown-menu" aria-labelledby="dropdown02">
                     <a class="dropdown-item" href="user_controller?action=list_all">List All Users</a>
-                    <!--<a class="dropdown-item" href="user_controller?action=add_form">Add User</a>-->
-                    <!--<a class="dropdown-item" href="user_controller?action=modify_form">Modify User</a>-->
-                    <!--<a class="dropdown-item" href="user_controller?action=delete_form">Delete User</a>-->
+                    <a class="dropdown-item" href="user_controller?action=add_form">Add User</a>
+                    <a class="dropdown-item" href="user_controller?action=modify_form">Modify User</a>
+                    <a class="dropdown-item" href="user_controller?action=delete_form">Delete User</a>
                   </div>
                 </li>
             </c:if>

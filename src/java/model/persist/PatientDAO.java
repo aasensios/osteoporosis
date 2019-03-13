@@ -72,7 +72,7 @@ public class PatientDAO {
                 PreparedStatement pst = conn.prepareStatement(getQuery("INSERT")
                 );) {
 
-            // INSERT              = INSERT INTO patients (age, ageGroup, weight, height, imc, classification, menarche, menopause, menopauseType) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+            // INSERT = INSERT INTO patients (age, ageGroup, weight, height, imc, classification, menarche, menopause, menopauseType) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
             pst.setInt(1, patient.getAge());
             pst.setString(2, patient.getAgeGroup());
             pst.setInt(3, patient.getWeight());

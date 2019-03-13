@@ -68,8 +68,7 @@ public class UserDAO {
         // ya que los parentesis cierran la conexion automaticamente
         try (
                 Connection conn = dataSource.getConnection();
-                Statement st = conn.createStatement();
-            ) {
+                Statement st = conn.createStatement();) {
             ResultSet res = st.executeQuery(getQuery("FIND_ALL"));
             while (res.next()) {
                 User user = new User();
@@ -83,34 +82,28 @@ public class UserDAO {
 
         return list;
     }
-    
-//    public int insert(User category) {
-//        int rowsAffected;
-//
-//        try (Connection conn = dataSource.getConnection();
-//                PreparedStatement pst = conn.prepareStatement(getQuery("INSERT"));) {
-//            pst.setString(1, category.getDescription());
-//            rowsAffected = pst.executeUpdate();
-//        } catch (SQLException e) {
-//            rowsAffected = 0;
-//        }
-//
-//        return rowsAffected;
-//    }
-//    public int update(User category) {
-//        int rowsAffected;
-//
-//        try (Connection conn = dataSource.getConnection();
-//                PreparedStatement pst = conn.prepareStatement(getQuery("UPDATE"));) {
-//            pst.setString(1, category.getDescription());
-//            pst.setInt(2, category.getId());
-//            rowsAffected = pst.executeUpdate();
-//        } catch (SQLException e) {
-//            rowsAffected = 0;
-//        }
-//
-//        return rowsAffected;
-//    }
+
+    public int insert(User user) {
+        int rowsAffected;
+
+        try (
+                Connection conn = dataSource.getConnection();
+                PreparedStatement pst = conn.prepareStatement(getQuery("INSERT")
+                );) {
+
+            // INSERT      = INSERT INTO users (username, password, role) VALUES (?, ?, ?)
+            pst.setString(1, user.getUsername());
+            pst.setString(2, user.getPassword());
+            pst.setString(3, user.getRole());
+
+            rowsAffected = pst.executeUpdate();
+        } catch (SQLException e) {
+            rowsAffected = 0;
+        }
+
+        return rowsAffected;
+    }
+
     /**
      *
      * @param category

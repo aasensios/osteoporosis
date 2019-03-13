@@ -7,7 +7,6 @@ package controllers;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.List;
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -15,7 +14,6 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-import model.Patient;
 import model.User;
 import model.persist.UserDAO;
 import utils.Validator;
@@ -61,21 +59,32 @@ public class UserController extends HttpServlet {
                 case "list_all":
                     listAll(request, response);
                     break;
-                case "form_adduser":
-                    form_adduser(request, response);
+                case "add_form":
+                    showFormAdd(request, response);
                     break;
                 case "add":
                     addUser(request, response);
                     break;
-//                case "modify":
-//                    modify(request, response);
-//                    break;
-                case "form_deleteuser":
-                    form_deleteuser(request, response);
+                case "modify_form":
+//                    showFormModify(request, response);
                     break;
-                case "delete":
-                    delete(request, response);
+                case "patient_to_modify":
+//                    modifyUser(request, response);
                     break;
+                case "modify":
+//                    modifyThatUser(request, response);
+                    break;
+                case "delete_form":
+//                    showFormDelete(request, response);
+                    break;
+                case "patient_to_delete":
+//                    deleteUser(request, response);
+                    break;
+                case "filter":
+//                    filterUser(request, response);
+                    break;
+                default:
+                    response.sendRedirect("index.jsp");
             }
         } else {
             response.sendRedirect("login.jsp");
@@ -146,18 +155,61 @@ public class UserController extends HttpServlet {
         dispatcher.forward(request, response);
 
     }
-
+    
     /**
      * Shows the form to add a new user.
      *
      * @param request
      * @param response
-     * @throws IOException
      * @throws ServletException
+     * @throws IOException
      */
-    private void form_adduser(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        RequestDispatcher rd = request.getRequestDispatcher("adduser.jsp");
-        rd.forward(request, response);
+    private void showFormAdd(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+
+        response.sendRedirect("user.jsp?showFormAdd");
+
+    }
+
+    /**
+     * Adds a new user.
+     *
+     * @param request
+     * @param response
+     * @throws ServletException
+     * @throws IOException
+     */
+    private void addUser(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+
+        // Get form fields
+        String username = request.getParameter("username");
+        String password = request.getParameter("password");
+//        String role = request.getParameter("role");
+        String role = "basic"; // basic role by default
+
+        // Null input handling
+        if (username == null
+                || password == null) {
+            response.sendRedirect("user.jsp");
+        }
+
+        // Patient construction
+        User newPatient = new User(
+                username.toLowerCase(),
+                password,
+                role
+        );
+
+        if (userDAO.insert(newPatient) == 1) {
+            request.setAttribute("success", "User successfully inserted :) !");
+        } else {
+            request.setAttribute("error", "User not inserted :( !");
+        }
+
+        RequestDispatcher dispatcher = request.getRequestDispatcher("user.jsp");
+        dispatcher.forward(request, response);
+
     }
 
     /**
@@ -167,8 +219,8 @@ public class UserController extends HttpServlet {
      * @param response servlet response
      * @throws IOException if an I/O error occurs
      */
-    private void addUser(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-
+//    private void addUser(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+//
 //        String username = request.getParameter("username");
 //        String password = request.getParameter("password");
 //        String passwordConfirm = request.getParameter("password_confirm");
@@ -208,7 +260,7 @@ public class UserController extends HttpServlet {
 //        request.setAttribute("message", message);
 //        RequestDispatcher rd = request.getRequestDispatcher("adduser.jsp");
 //        rd.forward(request, response);
-    }
+//    }
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
     /**

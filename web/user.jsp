@@ -65,6 +65,20 @@
                     <td scope="row">${user.role}</td>
                   </tr>
               </c:forEach>
+              <c:choose>
+                  <c:when test="${param.action == 'modify_form'}">
+                      <td scope="row">
+                        <button class="btn btn-warning" type="submit" value="${user.username};${user.password};${user.role}" name="user">Modify</button>
+                        <input type="hidden" name="action" value="user_to_modify"/>
+                      </td>
+                  </c:when>
+                  <c:when test="${param.action == 'delete_form'}">
+                      <td scope="row">
+                        <button class="btn btn-danger" type="submit" value="${user.username};${user.password};${user.role}" name="user" onlcick="confirm(Are you sure?)">Delete</button>
+                        <input type="hidden" name="action" value="user_to_delete"/>
+                      </td>
+                  </c:when>
+              </c:choose>
               </tbody>
             </table>
         </c:if>
@@ -73,27 +87,29 @@
         <c:if test="${param.showFormAdd != null || user_to_modify != null}" >
             <form action="user_controller" method="POST">
               <div class="form-group row">
-                <label for="inputName" class="col-sm-3">User Name:</label>
-                <input type="text" class="form-control col-sm-9" id="inputName" name="name" placeholder="User Name">
+                <label for="inputUsername" class="col-sm-3">Username:</label>
+                <input type="text" class="form-control col-sm-9" id="inputUsername" name="username" placeholder="Username">
               </div>
               <div class="form-group row">
-                <label for="inputPhone" class="col-sm-3">User Phone:</label>
-                <input type="text" class="form-control col-sm-9" id="inputPhone" name="phone" placeholder="User Phone">
+                <label for="inputPassword" class="col-sm-3">Password:</label>
+                <input type="password" class="form-control col-sm-9" id="inputPassword" name="password" placeholder="Password">
               </div>
-              <div class="form-group row">
-                <label for="inputAge" class="col-sm-3">User Age:</label>
-                <input type="number" class="form-control col-sm-9" id="inputAge" name="age" placeholder="User Age">
-              </div>
-              <div class="form-group row">
-                <label for="inputCategory" class="col-sm-3">New User Category:</label>
-                <input type="text" class="form-control col-sm-9" id="inputCategory" name="category" placeholder="User Category ID">
-              </div>
+              <c:if test="${user_to_modify != null}">
+                  <div class="form-group row">
+                    <label for="inputRole" class="col-sm-3">Role:</label>
+                    <select class="form-control col-sm-9 custom-select" id="inputRole" name="role">
+                      <option value="">Choose...</option>
+                      <option value="basic">Basic</option>
+                      <option value="admin">Admin</option>
+                    </select>
+                  </div>
+              </c:if>
               <c:choose>
                   <c:when test="${param.showFormAdd != null}">
                       <button type="submit" class="btn btn-primary" value="add" name="action">Add User</button>
                   </c:when>
                   <c:when test="${user_to_modify != null}">
-                      <input type="hidden" value="${user_to_modify.id}" name="id"/>
+                      <input type="hidden" value="${user_to_modify.username}" name="username"/>
                       <button type="submit" class="btn btn-primary" name="action" value="modify">Modify User</button>
                   </c:when>
                   <c:otherwise>

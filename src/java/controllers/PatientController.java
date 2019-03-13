@@ -127,7 +127,7 @@ public class PatientController extends HttpServlet {
         String menopause = request.getParameter("menopause");
         String menopauseType = request.getParameter("menopauseType");
 
-        // Null input patient handling
+        // Null input handling
         if (age == null
                 || weight == null
                 || height == null
@@ -171,14 +171,14 @@ public class PatientController extends HttpServlet {
     private void showFormModify(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-        ArrayList<Patient> cats = patientDAO.listAll();
+        ArrayList<Patient> patients = patientDAO.listAll();
 
         // patients list empty case
-        if (cats.isEmpty()) {
+        if (patients.isEmpty()) {
             request.setAttribute("error", "There aren't patients");
         }
 
-        request.setAttribute("patients", cats);
+        request.setAttribute("patients", patients);
         RequestDispatcher dispatcher = request.getRequestDispatcher("patient.jsp");
         dispatcher.forward(request, response);
 
