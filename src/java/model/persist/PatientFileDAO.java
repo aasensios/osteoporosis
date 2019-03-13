@@ -82,7 +82,7 @@ public class PatientFileDAO {
 
         for (Patient p : allPatients) {
             boolean match = p.getClassification().equals(filterPatient.getClassification())
-                    || p.isMenopause() == filterPatient.isMenopause()
+                    || p.getMenopause() == filterPatient.getMenopause()
                     || p.getMenopauseType().equals(filterPatient.getMenopauseType());
             if (match) {
                 filteredPatients.add(p);

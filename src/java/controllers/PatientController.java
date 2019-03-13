@@ -48,22 +48,22 @@ public class PatientController extends HttpServlet {
                 showFormAdd(request, response);
                 break;
             case "add":
-//                addPatient(request, response);
+                addPatient(request, response);
                 break;
             case "modify_form":
                 showFormModify(request, response);
                 break;
             case "patient_to_modify":
-//                modifyPatient(request, response);
+                modifyPatient(request, response);
                 break;
             case "modify":
-//                modifyThatPatient(request, response);
+                modifyThatPatient(request, response);
                 break;
             case "delete_form":
                 showFormDelete(request, response);
                 break;
             case "patient_to_delete":
-//                deletePatient(request, response);
+                deletePatient(request, response);
                 break;
             default:
                 response.sendRedirect("index.jsp");
@@ -112,35 +112,50 @@ public class PatientController extends HttpServlet {
      * @throws ServletException
      * @throws IOException
      */
-//    private void addPatient(HttpServletRequest request, HttpServletResponse response)
-//            throws ServletException, IOException {
-//
-//        // get form fields: category, name, phone, age
-//        String category = request.getParameter("category");
-//        String name = request.getParameter("name");
-//        String phone = request.getParameter("phone");
-//        String age = request.getParameter("age");
-//
-//        // null input patient handling
-//        if (category == null
-//                || phone == null
-//                || age == null
-//                || name == null) {
-//            response.sendRedirect("patient.jsp");
-//        }
-//
-//        Patient newPatient = new Patient(category, name, phone, Integer.parseInt(age));
-//
-//        if (patientDAO.insert(newPatient) == 1) {
-//            request.setAttribute("success", "Patient " + name + " successfully inserted :) !");
-//        } else {
-//            request.setAttribute("error", "Patient not inserted :( !");
-//        }
-//
-//        RequestDispatcher dispatcher = request.getRequestDispatcher("patient.jsp");
-//        dispatcher.forward(request, response);
-//
-//    }
+    private void addPatient(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+
+        // Get form fields
+        String age = request.getParameter("age");
+        String weight = request.getParameter("weight");
+        String height = request.getParameter("height");
+        String classification = request.getParameter("classification");
+        String menarche = request.getParameter("menarche");
+        String menopause = request.getParameter("menopause");
+        String menopauseType = request.getParameter("menopauseType");
+
+        // Null input patient handling
+        if (age == null
+                || weight == null
+                || height == null
+                || classification == null
+                || menarche == null
+                || menopause == null
+                || menopauseType == null) {
+            response.sendRedirect("patient.jsp");
+        }
+
+        // Patient construction
+        Patient newPatient = new Patient(
+                Integer.parseInt(age),
+                Integer.parseInt(weight),
+                Integer.parseInt(height),
+                classification.toUpperCase(),
+                Integer.parseInt(menarche),
+                menopause.equals("yes"),
+                menopauseType.toUpperCase()
+        );
+
+        if (patientDAO.insert(newPatient) == 1) {
+            request.setAttribute("success", "Patient successfully inserted :) !");
+        } else {
+            request.setAttribute("error", "Patient not inserted :( !");
+        }
+
+        RequestDispatcher dispatcher = request.getRequestDispatcher("patient.jsp");
+        dispatcher.forward(request, response);
+
+    }
 
     /**
      * Gets all patients and sends them to the view.
@@ -174,59 +189,77 @@ public class PatientController extends HttpServlet {
      * @throws ServletException
      * @throws IOException
      */
-//    private void modifyPatient(HttpServletRequest request, HttpServletResponse response)
-//            throws ServletException, IOException {
-//
-//        // get patient with fields separated by semicolon ';'
-//        String patient = request.getParameter("patient");
-//        String[] patientParams = patient.split(";");
-//
-//        // id, category, name, phone, age
-//        Patient newPatient = new Patient(
-//                Integer.parseInt(patientParams[0]),
-//                patientParams[1],
-//                patientParams[2],
-//                patientParams[3],
-//                Integer.parseInt(patientParams[4])
-//        );
-//
-//        request.setAttribute("patient_to_modify", newPatient);
-//        RequestDispatcher dispatcher = request.getRequestDispatcher("patient.jsp");
-//        dispatcher.forward(request, response);
-//
-//    }
+    private void modifyPatient(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
 
-//    private void modifyThatPatient(HttpServletRequest request, HttpServletResponse response)
-//            throws ServletException, IOException {
-//
-//        // get form fields: category, name, phone, age
-//        String category = request.getParameter("category");
-//        String name = request.getParameter("name");
-//        String phone = request.getParameter("phone");
-//        String age = request.getParameter("age");
-//        String id = request.getParameter("id");
-//
-//        // null input patient handling
-//        if (category == null
-//                || phone == null
-//                || age == null
-//                || name == null) {
-//            response.sendRedirect("patient.jsp");
-//        }
-//
-//        Patient newPatient = new Patient(Integer.parseInt(id), category, name, phone, Integer.parseInt(age));
-//
-//        // Modify the patient in database
-//        if (patientDAO.update(newPatient) > 0) {
-//            request.setAttribute("success", "Patient " + name + " successfully modified :) !");
-//        } else {
-//            request.setAttribute("error", "Patient not modified :( !");
-//        }
-//
-//        RequestDispatcher dispatcher = request.getRequestDispatcher("patient.jsp");
-//        dispatcher.forward(request, response);
-//    }
+        // Get patient from form with fields separated by semicolon ';'
+        String patient = request.getParameter("patient");
+        String[] fields = patient.split(";");
 
+        // Construct a patient
+        Patient patientToBeModified = new Patient(
+                Integer.parseInt(fields[0]),
+                Integer.parseInt(fields[1]),
+                fields[2],
+                Integer.parseInt(fields[3]),
+                Integer.parseInt(fields[4]),
+                Double.parseDouble(fields[5]),
+                fields[6],
+                Integer.parseInt(fields[7]),
+                fields[8].equals("SI"),
+                fields[9]
+        );
+
+        request.setAttribute("patient_to_modify", patientToBeModified);
+        RequestDispatcher dispatcher = request.getRequestDispatcher("patient.jsp");
+        dispatcher.forward(request, response);
+
+    }
+    private void modifyThatPatient(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+
+        // Get form fields
+        String age = request.getParameter("age");
+        String weight = request.getParameter("weight");
+        String height = request.getParameter("height");
+        String classification = request.getParameter("classification");
+        String menarche = request.getParameter("menarche");
+        String menopause = request.getParameter("menopause");
+        String menopauseType = request.getParameter("menopauseType");
+
+        // Null input patient handling
+        if (age == null
+                || weight == null
+                || height == null
+                || classification == null
+                || menarche == null
+                || menopause == null
+                || menopauseType == null) {
+            response.sendRedirect("patient.jsp");
+        }
+
+        // Patient construction
+        Patient newPatient = new Patient(
+                Integer.parseInt(age),
+                Integer.parseInt(weight),
+                Integer.parseInt(height),
+                classification.toUpperCase(),
+                Integer.parseInt(menarche),
+                menopause.equals("yes"),
+                menopauseType.toUpperCase()
+        );
+
+        // Modify the patient in database
+        if (patientDAO.update(newPatient) > 0) {
+            request.setAttribute("success", "Patient successfully modified :) !");
+        } else {
+            request.setAttribute("error", "Patient not modified :( !");
+        }
+
+        RequestDispatcher dispatcher = request.getRequestDispatcher("patient.jsp");
+        dispatcher.forward(request, response);
+    }
+    
     /**
      * Gets all patients and sends them to the view.
      *
@@ -238,57 +271,52 @@ public class PatientController extends HttpServlet {
     private void showFormDelete(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-        ArrayList<Patient> cats = patientDAO.listAll();
+        ArrayList<Patient> patients = patientDAO.listAll();
 
-        if (cats.isEmpty()) {
+        if (patients.isEmpty()) {
             request.setAttribute("error", "There aren't patients");
         }
 
-        request.setAttribute("patients", cats);
+        request.setAttribute("patients", patients);
         RequestDispatcher dispatcher = request.getRequestDispatcher("patient.jsp");
         dispatcher.forward(request, response);
 
     }
 
-//    private void deletePatient(HttpServletRequest request, HttpServletResponse response)
-//            throws ServletException, IOException {
-//
-//        // get patient with fields separated by semicolon ';'
-//        String patient = request.getParameter("patient");
-//        String[] patientParams = patient.split(";");
-//
-//        // id, category, name, phone, age
-//        Patient newPatient = new Patient(
-//                Integer.parseInt(patientParams[0]),
-//                patientParams[1],
-//                patientParams[2],
-//                patientParams[3],
-//                Integer.parseInt(patientParams[4])
-//        );
-//
-//        // Delete the patient from database
-//        int rowsAffected = patientDAO.delete(newPatient);
-//
-//        if (rowsAffected > 0) {
-//            request.setAttribute("success", "Patient " + newPatient.getName() + " DELETED ;) !");
-//        } else {
-//            switch (rowsAffected) {
-//                case -1:
-//                    request.setAttribute("error", "Patient not deleted due to a Constraint fail.");
-//                    break;
-//                case -2:
-//                    request.setAttribute("error", "Patient not deleted due to an Error, contact administrator.");
-//                    break;
-//                default:
-//                    response.sendRedirect("patient.jsp");
-//            }
-//        }
-//
-//        RequestDispatcher dispatcher = request.getRequestDispatcher("patient.jsp");
-//        dispatcher.forward(request, response);
-//        
-//    }
+    private void deletePatient(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
 
+        // Get patient from form with fields separated by semicolon ';'
+        String patient = request.getParameter("patient");
+        String[] fields = patient.split(";");
+
+        // 
+        Patient patientToBeDeleted = new Patient();
+        patientToBeDeleted.setRegisterId(Integer.parseInt(fields[0]));
+
+        // Delete the patient from database
+        int rowsAffected = patientDAO.delete(patientToBeDeleted);
+
+        if (rowsAffected > 0) {
+            request.setAttribute("success", "Patient DELETED ;) !");
+        } else {
+            switch (rowsAffected) {
+                case -1:
+                    request.setAttribute("error", "Patient not deleted due to a Constraint fail.");
+                    break;
+                case -2:
+                    request.setAttribute("error", "Patient not deleted due to an Error, contact administrator.");
+                    break;
+                default:
+                    response.sendRedirect("patient.jsp");
+            }
+        }
+
+        RequestDispatcher dispatcher = request.getRequestDispatcher("patient.jsp");
+        dispatcher.forward(request, response);
+        
+    }
+    
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
     /**
      * Handles the HTTP <code>GET</code> method.

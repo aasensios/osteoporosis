@@ -37,9 +37,8 @@ public class Patient {
         this.menopauseType = menopauseType;
     }
 
-    // Constructor without ageGroup and imc parameters
-    public Patient(int registerId, int age, int weight, int height, String classification, int menarche, boolean menopause, String menopauseType) {
-        this.registerId = registerId;
+    // Constructor without registerId, ageGroup and imc parameters
+    public Patient(int age, int weight, int height, String classification, int menarche, boolean menopause, String menopauseType) {
         this.age = age;
         setAgeGroup(age);
         this.weight = weight;
@@ -150,7 +149,7 @@ public class Patient {
         this.menarche = menarche;
     }
 
-    public boolean isMenopause() {
+    public boolean getMenopause() {
         return menopause;
     }
 

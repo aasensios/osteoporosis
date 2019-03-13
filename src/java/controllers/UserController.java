@@ -111,7 +111,7 @@ public class UserController extends HttpServlet {
             response.sendRedirect("patient_controller?action=list_all");
         } else {
             // Credentials are not valid
-            response.sendRedirect("login.jsp?error=true");
+            response.sendRedirect("login.jsp?error");
         }
 
     }
@@ -140,9 +140,9 @@ public class UserController extends HttpServlet {
      */
     private void listAll(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 
-        ArrayList<User> patients = userDAO.listAll();
-        request.setAttribute("patients", patients);
-        RequestDispatcher dispatcher = request.getRequestDispatcher("patient.jsp");
+        ArrayList<User> users = userDAO.listAll();
+        request.setAttribute("users", users);
+        RequestDispatcher dispatcher = request.getRequestDispatcher("user.jsp");
         dispatcher.forward(request, response);
 
     }

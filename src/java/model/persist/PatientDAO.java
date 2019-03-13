@@ -64,60 +64,86 @@ public class PatientDAO {
         return list;
     }
 
-//    public int insert(Patient patient) {
-//        int rowsAffected;
-//
-//        try (
-//                Connection conn = dataSource.getConnection();
-//                PreparedStatement pst = conn.prepareStatement(getQuery("INSERT")
-//            );) {
-//            // INSERT = INSERT INTO patients (...) VALUES (?, ...)
-//            pst.setString(1, patient.getName());
-//            pst.setString(2, patient.getPhone());
-//            pst.setInt(3, patient.getAge());
-//            pst.setInt(4, Integer.parseInt(patient.getCategory()));
-//            rowsAffected = pst.executeUpdate();
-//        } catch (SQLException e) {
-//            rowsAffected = 0;
-//        }
-//
-//        return rowsAffected;
-//    }
+    public int insert(Patient patient) {
+        int rowsAffected;
 
-//    public int update(Patient patient) {
-//        int rowsAffected;
-//
-//        try (
-//                Connection conn = dataSource.getConnection();
-//                PreparedStatement pst = conn.prepareStatement(getQuery("UPDATE")
-//            );) {
-//            // UPDATE = UPDATE patients SET name=?, phone=?, age=?, id_category=? WHERE id=?
-//            pst.setString(1, patient.getName());
-//            pst.setInt(2, Integer.parseInt(patient.getPhone()));
-//            pst.setInt(3, patient.getAge());
-//            pst.setInt(4, Integer.parseInt(patient.getCategory()));
-//            pst.setInt(5, patient.getId());
-//            rowsAffected = pst.executeUpdate();
-//        } catch (SQLException e) {
-//            rowsAffected = 0;
-//        }
-//
-//        return rowsAffected;
-//    }
+        try (
+                Connection conn = dataSource.getConnection();
+                PreparedStatement pst = conn.prepareStatement(getQuery("INSERT")
+            );) {
+            
+            // INSERT              = INSERT INTO patients (age, ageGroup, weight, height, imc, classification, menarche, menopause, menopauseType) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+            pst.setInt(1, patient.getAge());
+            pst.setString(2, patient.getAgeGroup());
+            pst.setInt(3, patient.getWeight());
+            pst.setInt(4, patient.getHeight());
+            pst.setDouble(5, patient.getImc());
+            pst.setString(6, patient.getClassification());
+            pst.setInt(7, patient.getMenarche());
+            pst.setBoolean(8, patient.getMenopause());
+            pst.setString(9, patient.getMenopauseType());
+            
+            rowsAffected = pst.executeUpdate();
+        } catch (SQLException e) {
+            rowsAffected = 0;
+        }
 
-//    public int delete(Patient patient) {
-//        int rowsAffected;
-//
-//        try (Connection conn = dataSource.getConnection();
-//                PreparedStatement pst = conn.prepareStatement(getQuery("DELETE"));) {
-//            pst.setInt(1, patient.getId());
-//            rowsAffected = pst.executeUpdate();
-//        } catch (SQLException e) {
-//            rowsAffected = -2;
-//        }
-//
-//        return rowsAffected;
-//    }
+        return rowsAffected;
+    }
+
+    /**
+     * Updates an existing user.
+     * 
+     * @param patient
+     * @return 1 if success, 0 otherwise
+     */
+    public int update(Patient patient) {
+        int rowsAffected;
+
+        try (
+                Connection conn = dataSource.getConnection();
+                PreparedStatement pst = conn.prepareStatement(getQuery("UPDATE")
+            );) {
+            
+            // UPDATE   = UPDATE patients SET age=?, ageGroup=?, weight=?, height=? imc=?, classification=?, menarche=?, menopause=?, menopauseType=? WHERE registerId=?
+            pst.setInt(1, patient.getAge());
+            pst.setString(2, patient.getAgeGroup());
+            pst.setInt(3, patient.getWeight());
+            pst.setInt(4, patient.getHeight());
+            pst.setDouble(5, patient.getImc());
+            pst.setString(6, patient.getClassification());
+            pst.setInt(7, patient.getMenarche());
+            pst.setBoolean(8, patient.getMenopause());
+            pst.setString(9, patient.getMenopauseType());
+            pst.setInt(10, patient.getRegisterId());
+            
+            rowsAffected = pst.executeUpdate();
+        } catch (SQLException e) {
+            rowsAffected = 0;
+        }
+
+        return rowsAffected;
+    }
+
+    /**
+     * Deletes an existing user.
+     * 
+     * @param patient
+     * @return 1 if success, -1 if constraint fail, -2 if SQL exception occurs
+     */
+    public int delete(Patient patient) {
+        int rowsAffected = 0;
+
+        try (Connection conn = dataSource.getConnection();
+                PreparedStatement pst = conn.prepareStatement(getQuery("DELETE"));) {
+            pst.setInt(1, patient.getRegisterId());
+            rowsAffected = pst.executeUpdate();
+        } catch (SQLException e) {
+            rowsAffected = -2;
+        }
+
+        return rowsAffected;
+    }
 
     
 
