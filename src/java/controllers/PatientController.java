@@ -65,6 +65,9 @@ public class PatientController extends HttpServlet {
             case "patient_to_delete":
                 deletePatient(request, response);
                 break;
+            case "filter":
+                filterPatient(request, response);
+                break;
             default:
                 response.sendRedirect("index.jsp");
         }
@@ -215,6 +218,7 @@ public class PatientController extends HttpServlet {
         dispatcher.forward(request, response);
 
     }
+
     private void modifyThatPatient(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
@@ -259,7 +263,7 @@ public class PatientController extends HttpServlet {
         RequestDispatcher dispatcher = request.getRequestDispatcher("patient.jsp");
         dispatcher.forward(request, response);
     }
-    
+
     /**
      * Gets all patients and sends them to the view.
      *
@@ -314,9 +318,25 @@ public class PatientController extends HttpServlet {
 
         RequestDispatcher dispatcher = request.getRequestDispatcher("patient.jsp");
         dispatcher.forward(request, response);
+
+    }
+
+    /**
+     * Filters the patients list by any search criteria.
+     *
+     * @param request
+     * @param response
+     */
+    private void filterPatient(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        
+        String searchCriteria = request.getParameter("searchCriteria");
+        ArrayList<Patient> patientsFiltered = patientDAO.filter(searchCriteria);
+        request.setAttribute("patients", patientsFiltered);
+        RequestDispatcher dispatcher = request.getRequestDispatcher("patient.jsp");
+        dispatcher.forward(request, response);
         
     }
-    
+
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
     /**
      * Handles the HTTP <code>GET</code> method.
