@@ -66,18 +66,18 @@ public class UserController extends HttpServlet {
                     addUser(request, response);
                     break;
                 case "modify_form":
-//                    showFormModify(request, response);
+                    showFormModify(request, response);
                     break;
-                case "patient_to_modify":
-//                    modifyUser(request, response);
+                case "user_to_modify":
+                    modifyUser(request, response);
                     break;
                 case "modify":
-//                    modifyThatUser(request, response);
+                    modifyThatUser(request, response);
                     break;
                 case "delete_form":
 //                    showFormDelete(request, response);
                     break;
-                case "patient_to_delete":
+                case "user_to_delete":
 //                    deleteUser(request, response);
                     break;
                 case "filter":
@@ -116,7 +116,7 @@ public class UserController extends HttpServlet {
             session.setAttribute("logged_in", true);
             session.setAttribute("username", foundUser.getUsername());
             session.setAttribute("role", foundUser.getRole());
-            // Redirect to list all patients
+            // Redirect to list all users
             response.sendRedirect("patient_controller?action=list_all");
         } else {
             // Credentials are not valid
@@ -155,7 +155,7 @@ public class UserController extends HttpServlet {
         dispatcher.forward(request, response);
 
     }
-    
+
     /**
      * Shows the form to add a new user.
      *
@@ -185,23 +185,29 @@ public class UserController extends HttpServlet {
         // Get form fields
         String username = request.getParameter("username");
         String password = request.getParameter("password");
+        String passwordRepeat = request.getParameter("passwordRepeat");
 //        String role = request.getParameter("role");
         String role = "basic"; // basic role by default
 
         // Null input handling
         if (username == null
-                || password == null) {
+                || password == null
+                || passwordRepeat == null) {
+            request.setAttribute("error", "None of the fields can be empty!");
+            response.sendRedirect("user.jsp");
+        } else if (!password.equals(passwordRepeat)) {
+            request.setAttribute("error", "Passwords doesn't match!");
             response.sendRedirect("user.jsp");
         }
 
-        // Patient construction
-        User newPatient = new User(
+        // User construction
+        User newUser = new User(
                 username.toLowerCase(),
                 password,
                 role
         );
 
-        if (userDAO.insert(newPatient) == 1) {
+        if (userDAO.insert(newUser) == 1) {
             request.setAttribute("success", "User successfully inserted :) !");
         } else {
             request.setAttribute("error", "User not inserted :( !");
@@ -213,55 +219,132 @@ public class UserController extends HttpServlet {
     }
 
     /**
-     * Creates a new user.
+     * Gets all users and sends them to the view.
+     *
+     * @param request
+     * @param response
+     * @throws ServletException
+     * @throws IOException
+     */
+    private void showFormModify(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+
+        ArrayList<User> users = userDAO.listAll();
+
+        // users list empty case
+        if (users.isEmpty()) {
+            request.setAttribute("error", "There aren't users");
+        }
+
+        request.setAttribute("users", users);
+        RequestDispatcher dispatcher = request.getRequestDispatcher("user.jsp");
+        dispatcher.forward(request, response);
+
+    }
+
+    /**
+     * Modifies an existing user.
+     *
+     * @param request
+     * @param response
+     * @throws ServletException
+     * @throws IOException
+     */
+    private void modifyUser(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+
+        // Get user from form with fields separated by semicolon ';'
+        String user = request.getParameter("user");
+        String[] fields = user.split(";");
+
+        // Construct a user
+        User userToBeModified = new User(
+                fields[0],
+                fields[1],
+                fields[2]
+        );
+
+        request.setAttribute("user_to_modify", userToBeModified);
+        RequestDispatcher dispatcher = request.getRequestDispatcher("user.jsp");
+        dispatcher.forward(request, response);
+
+    }
+
+    private void modifyThatUser(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+
+        // Get form fields
+        String username = request.getParameter("username");
+        String password = request.getParameter("password");
+        String passwordRepeat = request.getParameter("passwordRepeat");
+        String role = request.getParameter("role");
+
+        // Null input handling
+        if (username == null
+                || password == null
+                || passwordRepeat == null
+                || role == null) {
+            request.setAttribute("error", "None of the fields can be empty!");
+            response.sendRedirect("user.jsp");
+        }
+
+        // User construction
+        User newUser = new User(
+                username,
+                password,
+                role
+        );
+
+        // Modify the user in database
+        if (userDAO.update(newUser) > 0) {
+            request.setAttribute("success", "User successfully modified :) !");
+        } else {
+            request.setAttribute("error", "User not modified :( !");
+        }
+
+        RequestDispatcher dispatcher = request.getRequestDispatcher("user.jsp");
+        dispatcher.forward(request, response);
+    }
+
+    /**
+     * Shows the form to delete an existing user.
+     *
+     * @param request
+     * @param response
+     * @throws IOException
+     * @throws ServletException
+     */
+    private void form_deleteuser(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        // Call the DAO, which calls the DataBase to get the data from the file
+//        List<User> users = udao.listAll();
+//        request.setAttribute("users", null);
+//        request.setAttribute("users", users);
+//        RequestDispatcher rd = request.getRequestDispatcher("landing.jsp");
+//        rd.forward(request, response);
+    }
+
+    /**
+     * Deletes an existing user.
      *
      * @param request servlet request
      * @param response servlet response
      * @throws IOException if an I/O error occurs
      */
-//    private void addUser(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-//
-//        String username = request.getParameter("username");
-//        String password = request.getParameter("password");
-//        String passwordConfirm = request.getParameter("password_confirm");
-//
-//        // Error (message) handling
-//        String message = "";
-//        if (username.equals("") || password.equals("") || passwordConfirm.equals("")) {
-//            message += "<p>All fields must be filled up.</p>";
-//        }
-//        if (!Validator.hasMinimumLength(password, 6)) {
-//            message += "<p>Password must be 6 or more characters long.</p>";
-//        }
-//        if (!password.equals(passwordConfirm)) {
-//            message += "<p>Password does not match with its repetition.</p>";
-//        }
-//
-//        // Check if some error occurred
-//        if (message.equals("")) {
-//            User u = new User(username, password);
-//            int user_added = udao.insert(u);
-//            switch (user_added) {
-//                case -1:
-//                    message = "<p>This username already exists. Try another one.</p>";
-//                    break;
-//                case 0:
-//                    message = "<p>Some problem with file has occurred.</p>";
-//                    break;
-//                case 1:
-//                    message = "<p>New user has been registered successfully.</p>";
-//                    break;
-//                default:
-//                    throw new AssertionError();
-//            }
-//        }
-//
-//        // Otra manera de enviar errores via POST
-//        request.setAttribute("message", message);
-//        RequestDispatcher rd = request.getRequestDispatcher("adduser.jsp");
-//        rd.forward(request, response);
-//    }
+    private void delete(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 
+//        // Get the selected user by the radio input 
+//        String selectedUsername = request.getParameter("selected");
+//        
+//        if (Validator.isNotEmpty(selectedUsername)) {
+//            User userToBeDeleted = new User(selectedUsername);
+//            int user_deleted = udao.delete(userToBeDeleted);
+//            request.setAttribute("user_deleted", user_deleted);
+//        }
+//        
+//        RequestDispatcher rd = request.getRequestDispatcher("landing.jsp");
+//        rd.forward(request, response);
+    }
+    
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
     /**
      * Handles the HTTP <code>GET</code> method.
@@ -301,63 +384,5 @@ public class UserController extends HttpServlet {
         return "Short description";
     }// </editor-fold>
 
-    /**
-     * Modifies an existing user.
-     *
-     * @param request servlet request
-     * @param response servlet response
-     * @throws IOException if an I/O error occurs
-     */
-//    private void modify(HttpServletRequest request, HttpServletResponse response) {
-//
-//        String newUsername = request.getParameter("new-username");
-//        String currentPassword = request.getParameter("current-password");
-//        String newPassword = request.getParameter("new-password");
-//        String newPasswordRepeat = request.getParameter("new-password-repeat");
-//
-//        HttpSession session = request.getSession();
-//
-//        String path = getServletContext().getRealPath("/WEB-INF");
-//        
-//        //TODO
-//    }
-    /**
-     * Shows the form to delete an existing user.
-     *
-     * @param request
-     * @param response
-     * @throws IOException
-     * @throws ServletException
-     */
-    private void form_deleteuser(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        // Call the DAO, which calls the DataBase to get the data from the file
-//        List<Patient> users = udao.listAll();
-//        request.setAttribute("patients", null);
-//        request.setAttribute("users", users);
-//        RequestDispatcher rd = request.getRequestDispatcher("landing.jsp");
-//        rd.forward(request, response);
-    }
-
-    /**
-     * Deletes an existing user.
-     *
-     * @param request servlet request
-     * @param response servlet response
-     * @throws IOException if an I/O error occurs
-     */
-    private void delete(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-
-//        // Get the selected user by the radio input 
-//        String selectedUsername = request.getParameter("selected");
-//        
-//        if (Validator.isNotEmpty(selectedUsername)) {
-//            User userToBeDeleted = new User(selectedUsername);
-//            int user_deleted = udao.delete(userToBeDeleted);
-//            request.setAttribute("user_deleted", user_deleted);
-//        }
-//        
-//        RequestDispatcher rd = request.getRequestDispatcher("landing.jsp");
-//        rd.forward(request, response);
-    }
 
 }

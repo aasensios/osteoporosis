@@ -23,9 +23,22 @@ public class Patient {
     public Patient() {
     }
 
-    // Full standard constructor
+    // Full constructor
     public Patient(int registerId, int age, String ageGroup, int weight, int height, double imc, String classification, int menarche, boolean menopause, String menopauseType) {
         this.registerId = registerId;
+        this.age = age;
+        this.ageGroup = ageGroup;
+        this.weight = weight;
+        this.height = height;
+        this.imc = imc;
+        this.classification = classification;
+        this.menarche = menarche;
+        this.menopause = menopause;
+        this.menopauseType = menopauseType;
+    }
+    
+    // Full constructor except registerId
+    public Patient(int age, String ageGroup, int weight, int height, double imc, String classification, int menarche, boolean menopause, String menopauseType) {
         this.age = age;
         this.ageGroup = ageGroup;
         this.weight = weight;

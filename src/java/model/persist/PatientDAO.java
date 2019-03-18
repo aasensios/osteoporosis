@@ -59,6 +59,8 @@ public class PatientDAO {
                 list.add(patient);
             }
         } catch (SQLException e) {
+            System.out.println(e.getMessage());
+
         }
 
         return list;
@@ -85,6 +87,7 @@ public class PatientDAO {
 
             rowsAffected = pst.executeUpdate();
         } catch (SQLException e) {
+            System.out.println(e.getMessage());
             rowsAffected = 0;
         }
 
@@ -117,6 +120,7 @@ public class PatientDAO {
 
             rowsAffected = pst.executeUpdate();
         } catch (SQLException e) {
+            System.out.println(e.getMessage());
             rowsAffected = 0;
         }
 
@@ -137,6 +141,7 @@ public class PatientDAO {
             pst.setInt(1, patient.getRegisterId());
             rowsAffected = pst.executeUpdate();
         } catch (SQLException e) {
+            System.out.println(e.getMessage());
             rowsAffected = -2;
         }
 
@@ -144,32 +149,75 @@ public class PatientDAO {
     }
 
     /**
+     * Filters all the patients by the properties of a given patient passed as
+     * parameter.
      *
-     * @param searchCriteria
+     * @param filterPatient
      * @return
      */
-    public ArrayList<Patient> filter(String searchCriteria) {
+    public ArrayList<Patient> filter(Patient filterPatient) {
 
         ArrayList<Patient> list = new ArrayList<>();
 
         // Parenthesis try block: 'finally' is not necessary to close the database connection,
         // because the parenthesis close the connection automatically.
-        try (Connection conn = dataSource.getConnection();
+        try (
+                Connection conn = dataSource.getConnection();
                 PreparedStatement pst = conn.prepareStatement(getQuery("FILTER"));) {
-            // FILTER = SELECT * FROM patients WHERE (age LIKE '%?%' OR ageGroup LIKE '%?%' OR weight LIKE '%?%' OR height LIKE '%?%' OR imc LIKE '%?%' OR classification LIKE '%?%' OR menarche LIKE '%?%' OR menopause LIKE '%?%' OR menopauseType LIKE '%?%');
-            pst.setInt(1, Integer.parseInt(searchCriteria));
-            pst.setString(2, searchCriteria);
-            pst.setInt(3, Integer.parseInt(searchCriteria));
-            pst.setInt(4, Integer.parseInt(searchCriteria));
-            pst.setDouble(5, Double.parseDouble(searchCriteria));
-            pst.setString(6, searchCriteria);
-            pst.setInt(7, Integer.parseInt(searchCriteria));
-            pst.setBoolean(8, searchCriteria.equals("SI"));
-            pst.setString(9, searchCriteria);
+
+            // FILTER = SELECT * FROM patients WHERE (classification=? AND menopause=? AND menopauseType=?);
+            pst.setString(1, filterPatient.getClassification());
+            pst.setBoolean(2, filterPatient.getMenopause());
+            pst.setString(3, filterPatient.getMenopauseType());
+
+            // executeQuery without parameters because it's a prepared statement
+            ResultSet res = pst.executeQuery();
+
+            while (res.next()) {
+                Patient patient = new Patient();
+                patient.setRegisterId(res.getInt("registerId"));
+                patient.setAge(res.getInt("age"));
+                patient.setAgeGroup(res.getString("ageGroup"));
+                patient.setWeight(res.getInt("weight"));
+                patient.setHeight(res.getInt("height"));
+                patient.setImc(res.getDouble("imc"));
+                patient.setClassification(res.getString("classification"));
+                patient.setMenarche(res.getInt("menarche"));
+                patient.setMenopause(res.getBoolean("menopause"));
+                patient.setMenopauseType(res.getString("menopauseType"));
+                list.add(patient);
+            }
         } catch (SQLException e) {
+            System.out.println(e.getMessage());
         }
 
         return list;
     }
+    /**
+     * TODO unified search bar
+     */
+//    public ArrayList<Patient> globalFilter(String searchCriteria) {
+//
+//        ArrayList<Patient> list = new ArrayList<>();
+//
+//        // Parenthesis try block: 'finally' is not necessary to close the database connection,
+//        // because the parenthesis close the connection automatically.
+//        try (Connection conn = dataSource.getConnection();
+//                PreparedStatement pst = conn.prepareStatement(getQuery("FILTER"));) {
+//            // FILTER = SELECT * FROM patients WHERE (age LIKE '%?%' OR ageGroup LIKE '%?%' OR weight LIKE '%?%' OR height LIKE '%?%' OR imc LIKE '%?%' OR classification LIKE '%?%' OR menarche LIKE '%?%' OR menopause LIKE '%?%' OR menopauseType LIKE '%?%');
+//            pst.setInt(1, Integer.parseInt(searchCriteria));
+//            pst.setString(2, searchCriteria);
+//            pst.setInt(3, Integer.parseInt(searchCriteria));
+//            pst.setInt(4, Integer.parseInt(searchCriteria));
+//            pst.setDouble(5, Double.parseDouble(searchCriteria));
+//            pst.setString(6, searchCriteria);
+//            pst.setInt(7, Integer.parseInt(searchCriteria));
+//            pst.setBoolean(8, searchCriteria.equals("SI"));
+//            pst.setString(9, searchCriteria);
+//        } catch (SQLException e) {
+//        }
+//
+//        return list;
+//    }
 
 }

@@ -10,15 +10,15 @@
 DROP DATABASE IF EXISTS osteoporosis;
 -- DROP USER IF EXISTS 'provenuser'@'localhost';
 
--- Database creation
+-- Database creation and usage
 
 CREATE DATABASE osteoporosis DEFAULT CHARACTER SET utf8 DEFAULT COLLATE utf8_general_ci;
 USE osteoporosis;
 
--- User creation
+-- User creation and privileges
 
--- CREATE USER provenuser IDENTIFIED BY 'Proven1.';
-GRANT ALL PRIVILEGES ON osteoporosis.* TO provenuser;
+CREATE USER osteoporosis IDENTIFIED BY 'Osteoporosis1.';
+GRANT ALL PRIVILEGES ON osteoporosis.* TO osteoporosis;
 
 -- Table patients
 

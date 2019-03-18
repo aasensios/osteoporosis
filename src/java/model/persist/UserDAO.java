@@ -9,6 +9,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Properties;
+import model.User;
 
 import model.User;
 
@@ -105,23 +106,48 @@ public class UserDAO {
     }
 
     /**
+     * Updates an existing user.
      *
-     * @param category
-     * @return 1 if success,
+     * @param User
+     * @return 1 if success, 0 otherwise
      */
-//    public int delete(User category) {
-//        int rowsAffected;
-//
-//        try (Connection conn = dataSource.getConnection();
-//                PreparedStatement pst = conn.prepareStatement(getQuery("DELETE"));) {
-//            pst.setInt(1, category.getId());
-//            rowsAffected = pst.executeUpdate();
-//        } catch (SQLException sqle) {
-//            rowsAffected = -1;
-//        } catch (Exception e) {
-//            rowsAffected = -2;
-//        }
-//
-//        return rowsAffected;
-//    }
+    public int update(User user) {
+        int rowsAffected;
+
+        try (Connection conn = dataSource.getConnection();
+                PreparedStatement pst = conn.prepareStatement(getQuery("UPDATE"));) {
+
+            // UPDATE      = UPDATE users SET password=?, role=? WHERE username=?
+            pst.setString(1, user.getPassword());
+            pst.setString(2, user.getRole());
+            pst.setString(3, user.getUsername());
+
+            rowsAffected = pst.executeUpdate();
+        } catch (SQLException e) {
+            rowsAffected = 0;
+        }
+
+        return rowsAffected;
+    }
+
+    /**
+     * Deletes an existing user.
+     *
+     * @param User
+     * @return 1 if success, -1 if constraint fail, -2 if SQL exception occurs
+     */
+    public int delete(User user) {
+        int rowsAffected = 0;
+
+        try (Connection conn = dataSource.getConnection();
+                PreparedStatement pst = conn.prepareStatement(getQuery("DELETE"));) {
+            pst.setString(1, user.getUsername());
+            rowsAffected = pst.executeUpdate();
+        } catch (SQLException e) {
+            rowsAffected = -2;
+        }
+
+        return rowsAffected;
+    }
+
 }

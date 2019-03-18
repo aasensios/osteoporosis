@@ -94,6 +94,10 @@
                 <label for="inputPassword" class="col-sm-3">Password:</label>
                 <input type="password" class="form-control col-sm-9" id="inputPassword" name="password" placeholder="Password">
               </div>
+              <div class="form-group row">
+                <label for="inputPasswordRepeat" class="col-sm-3">Repeat password:</label>
+                <input type="password" class="form-control col-sm-9" id="inputPasswordRepeat" name="passwordRepeat" placeholder="Repeat password">
+              </div>
               <c:if test="${user_to_modify != null}">
                   <div class="form-group row">
                     <label for="inputRole" class="col-sm-3">Role:</label>

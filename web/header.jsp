@@ -23,6 +23,7 @@
               <a class="nav-link dropdown-toggle" href="#" id="dropdown01" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Patients</a>
               <div class="dropdown-menu" aria-labelledby="dropdown01">
                 <a class="dropdown-item" href="patient_controller?action=list_all">List All Patients</a>
+                <a class="dropdown-item" href="patient_controller?action=filter_form">Filter Patients</a>
                 <a class="dropdown-item" href="patient_controller?action=add_form">Add Patient</a>
                 <a class="dropdown-item" href="patient_controller?action=modify_form">Modify Patient</a>
                 <a class="dropdown-item" href="patient_controller?action=delete_form">Delete Patient</a>
@@ -43,7 +44,7 @@
       </ul>
     </div>
     <form class="form-inline mt-2 mt-md-0" action="patient_controller" method="GET">
-      <input class="form-control mr-sm-2" type="text" placeholder="Type anything..." aria-label="Search" name="searchCriteria">
+      <input class="form-control mr-sm-2" type="text" placeholder="TODO: unified search bar..." aria-label="Search" name="searchCriteria">
       <button class="btn btn-outline-success my-2 my-sm-0" type="submit" name="action" value="filter">Search</button>
     </form>
     <c:choose>

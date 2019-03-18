@@ -6,17 +6,17 @@ import java.sql.SQLException;
 
 public final class DBConnect {
 
-    // attributes
+    // Change if needed
     private static final String DRIVER = "com.mysql.jdbc.Driver";
     private static final String BD_URL = "jdbc:mysql://localhost/osteoporosis";
-    private static final String USUARI = "provenuser";
-    private static final String PASSWORD = "Proven1.";
+    private static final String USUARI = "osteoporosis";
+    private static final String PASSWORD = "Osteoporosis1.";
 
     private static DBConnect instance = null;
 
     private DBConnect() {
         try {
-            // cargar el driver
+            // Loads the driver
             Class.forName(DRIVER);
         } catch (ClassNotFoundException ex) {
             ex.printStackTrace();

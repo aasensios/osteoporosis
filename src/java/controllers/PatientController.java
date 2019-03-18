@@ -44,6 +44,12 @@ public class PatientController extends HttpServlet {
             case "list_all":
                 listAll(request, response);
                 break;
+            case "filter_form":
+                showFormFilter(request, response);
+                break;
+            case "filter":
+                filterPatient(request, response);
+                break;
             case "add_form":
                 showFormAdd(request, response);
                 break;
@@ -65,9 +71,6 @@ public class PatientController extends HttpServlet {
             case "patient_to_delete":
                 deletePatient(request, response);
                 break;
-            case "filter":
-                filterPatient(request, response);
-                break;
             default:
                 response.sendRedirect("index.jsp");
         }
@@ -87,6 +90,62 @@ public class PatientController extends HttpServlet {
 
         ArrayList<Patient> patients = patientDAO.listAll();
         request.setAttribute("patients", patients);
+        RequestDispatcher dispatcher = request.getRequestDispatcher("patient.jsp");
+        dispatcher.forward(request, response);
+
+    }
+
+    /**
+     * Shows the form to add a new patient.
+     *
+     * @param request
+     * @param response
+     * @throws ServletException
+     * @throws IOException
+     */
+    private void showFormFilter(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+
+//        ArrayList<Patient> patients = patientDAO.listAll();
+//        request.setAttribute("patients", patients);
+//        response.sendRedirect("patient.jsp?showFormFilter");
+        ArrayList<Patient> patients = patientDAO.listAll();
+        request.setAttribute("patients", patients);
+        request.setAttribute("showFormFilter", true);
+        RequestDispatcher dispatcher = request.getRequestDispatcher("patient.jsp");
+        dispatcher.forward(request, response);
+    }
+
+    /**
+     * Filters the patients list by any search criteria.
+     *
+     * @param request
+     * @param response
+     */
+    private void filterPatient(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+
+        // TODO global search bar on header -----------
+//        String searchCriteria = request.getParameter("searchCriteria");
+//        ArrayList<Patient> patientsFiltered = patientDAO.filter(searchCriteria);
+//        request.setAttribute("patients", patientsFiltered);
+//        RequestDispatcher dispatcher = request.getRequestDispatcher("patient.jsp");
+//        dispatcher.forward(request, response);
+        //-------------
+        // Get form fields from the row-inline-form
+        String classification = request.getParameter("classification").toUpperCase();
+        String menopause = request.getParameter("menopause").toUpperCase();
+        String menopauseType = request.getParameter("menopauseType").toUpperCase();
+
+        // Patient construction
+        Patient patientAsFilter = new Patient();
+        patientAsFilter.setClassification(classification);
+        patientAsFilter.setMenopause(menopause.equals("YES"));
+        patientAsFilter.setMenopauseType(menopauseType);
+
+        // Filtering
+        ArrayList<Patient> patients = patientDAO.filter(patientAsFilter);
+        request.setAttribute("patients", patients);
+        request.setAttribute("success", String.format("Filter result: %d rows", patients.size()));
         RequestDispatcher dispatcher = request.getRequestDispatcher("patient.jsp");
         dispatcher.forward(request, response);
 
@@ -319,22 +378,6 @@ public class PatientController extends HttpServlet {
         RequestDispatcher dispatcher = request.getRequestDispatcher("patient.jsp");
         dispatcher.forward(request, response);
 
-    }
-
-    /**
-     * Filters the patients list by any search criteria.
-     *
-     * @param request
-     * @param response
-     */
-    private void filterPatient(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        
-        String searchCriteria = request.getParameter("searchCriteria");
-        ArrayList<Patient> patientsFiltered = patientDAO.filter(searchCriteria);
-        request.setAttribute("patients", patientsFiltered);
-        RequestDispatcher dispatcher = request.getRequestDispatcher("patient.jsp");
-        dispatcher.forward(request, response);
-        
     }
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
