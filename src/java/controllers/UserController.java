@@ -75,7 +75,7 @@ public class UserController extends HttpServlet {
                     modifyThatUser(request, response);
                     break;
                 case "delete_form":
-//                    showFormDelete(request, response);
+                    showFormDelete(request, response);
                     break;
                 case "user_to_delete":
 //                    deleteUser(request, response);
@@ -99,7 +99,7 @@ public class UserController extends HttpServlet {
      * @param response servlet response
      * @throws IOException if an I/O error occurs
      */
-    private void login(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    private void login(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
 
         // Get the user credentials from form
         String username = request.getParameter("username");
@@ -111,16 +111,18 @@ public class UserController extends HttpServlet {
         // Validate those credentials against the database
         User foundUser = userDAO.find(searchedUser);
         if (foundUser != null) {
-            // Create a session variable and assign this user to it
+            // Create some session attributes
             HttpSession session = request.getSession();
             session.setAttribute("logged_in", true);
             session.setAttribute("username", foundUser.getUsername());
             session.setAttribute("role", foundUser.getRole());
-            // Redirect to list all users
-            response.sendRedirect("patient_controller?action=list_all");
+            // Redirect to index
+            response.sendRedirect("index.jsp");
         } else {
             // Credentials are not valid
-            response.sendRedirect("login.jsp?error");
+            request.setAttribute("error", "Username and/or password are not valid.");
+            RequestDispatcher dispatcher = request.getRequestDispatcher("login.jsp");
+            dispatcher.forward(request, response);
         }
 
     }
@@ -138,7 +140,7 @@ public class UserController extends HttpServlet {
         // Destroy the session
         session.invalidate();
         // Redirect to the initial view
-        response.sendRedirect("patient_controller?action=list_all");
+        response.sendRedirect("index.jsp");
     }
 
     /**
@@ -233,7 +235,7 @@ public class UserController extends HttpServlet {
 
         // users list empty case
         if (users.isEmpty()) {
-            request.setAttribute("error", "There aren't users");
+            request.setAttribute("warning", "There aren't users.");
         }
 
         request.setAttribute("users", users);
@@ -314,13 +316,19 @@ public class UserController extends HttpServlet {
      * @throws IOException
      * @throws ServletException
      */
-    private void form_deleteuser(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        // Call the DAO, which calls the DataBase to get the data from the file
-//        List<User> users = udao.listAll();
-//        request.setAttribute("users", null);
-//        request.setAttribute("users", users);
-//        RequestDispatcher rd = request.getRequestDispatcher("landing.jsp");
-//        rd.forward(request, response);
+    private void showFormDelete(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+
+        ArrayList<User> users = userDAO.listAll();
+
+        // users list empty case
+        if (users.isEmpty()) {
+            request.setAttribute("warning", "There aren't users.");
+        }
+
+        request.setAttribute("users", users);
+        RequestDispatcher dispatcher = request.getRequestDispatcher("user.jsp");
+        dispatcher.forward(request, response);
+
     }
 
     /**
@@ -344,7 +352,7 @@ public class UserController extends HttpServlet {
 //        RequestDispatcher rd = request.getRequestDispatcher("landing.jsp");
 //        rd.forward(request, response);
     }
-    
+
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
     /**
      * Handles the HTTP <code>GET</code> method.
@@ -383,6 +391,5 @@ public class UserController extends HttpServlet {
     public String getServletInfo() {
         return "Short description";
     }// </editor-fold>
-
 
 }

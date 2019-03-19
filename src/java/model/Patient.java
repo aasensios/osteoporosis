@@ -63,6 +63,20 @@ public class Patient {
         this.menopauseType = menopauseType;
     }
 
+    // Constructor without ageGroup and imc parameters (for modifiyThatPatient method)
+    public Patient(int registerId, int age, int weight, int height, String classification, int menarche, boolean menopause, String menopauseType) {
+        this.registerId = registerId;
+        this.age = age;
+        setAgeGroup(age);
+        this.weight = weight;
+        this.height = height;
+        setImc(weight, height);
+        this.classification = classification;
+        this.menarche = menarche;
+        this.menopause = menopause;
+        this.menopauseType = menopauseType;
+    }
+
     public String getMenopauseType() {
         return menopauseType;
     }

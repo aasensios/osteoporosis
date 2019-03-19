@@ -106,7 +106,7 @@ public class PatientDAO {
         try (Connection conn = dataSource.getConnection();
                 PreparedStatement pst = conn.prepareStatement(getQuery("UPDATE"));) {
 
-            // UPDATE   = UPDATE patients SET age=?, ageGroup=?, weight=?, height=? imc=?, classification=?, menarche=?, menopause=?, menopauseType=? WHERE registerId=?
+            // UPDATE = UPDATE patients SET age=?, ageGroup=?, weight=?, height=? imc=?, classification=?, menarche=?, menopause=?, menopauseType=? WHERE registerId=?
             pst.setInt(1, patient.getAge());
             pst.setString(2, patient.getAgeGroup());
             pst.setInt(3, patient.getWeight());

@@ -268,7 +268,7 @@ public class PatientController extends HttpServlet {
                 Double.parseDouble(fields[5]),
                 fields[6],
                 Integer.parseInt(fields[7]),
-                fields[8].equals("SI"),
+                fields[8].toUpperCase().equals("YES"),
                 fields[9]
         );
 
@@ -282,13 +282,14 @@ public class PatientController extends HttpServlet {
             throws ServletException, IOException {
 
         // Get form fields
+        String registerId = request.getParameter("registerId");
         String age = request.getParameter("age");
         String weight = request.getParameter("weight");
         String height = request.getParameter("height");
-        String classification = request.getParameter("classification");
+        String classification = request.getParameter("classification").toUpperCase();
         String menarche = request.getParameter("menarche");
         String menopause = request.getParameter("menopause");
-        String menopauseType = request.getParameter("menopauseType");
+        String menopauseType = request.getParameter("menopauseType").toUpperCase();
 
         // Null input patient handling
         if (age == null
@@ -302,21 +303,22 @@ public class PatientController extends HttpServlet {
         }
 
         // Patient construction
-        Patient newPatient = new Patient(
+        Patient patientModified = new Patient(
+                Integer.parseInt(registerId),
                 Integer.parseInt(age),
                 Integer.parseInt(weight),
                 Integer.parseInt(height),
                 classification.toUpperCase(),
                 Integer.parseInt(menarche),
-                menopause.equals("yes"),
+                menopause.equals("YES"),
                 menopauseType.toUpperCase()
         );
 
         // Modify the patient in database
-        if (patientDAO.update(newPatient) > 0) {
-            request.setAttribute("success", "Patient successfully modified :) !");
+        if (patientDAO.update(patientModified) > 0) {
+            request.setAttribute("success", "Patient has been modified successfully.");
         } else {
-            request.setAttribute("error", "Patient not modified :( !");
+            request.setAttribute("error", "Patient has not been modified.");
         }
 
         RequestDispatcher dispatcher = request.getRequestDispatcher("patient.jsp");
@@ -337,7 +339,7 @@ public class PatientController extends HttpServlet {
         ArrayList<Patient> patients = patientDAO.listAll();
 
         if (patients.isEmpty()) {
-            request.setAttribute("error", "There aren't patients");
+            request.setAttribute("error", "There aren't any patients");
         }
 
         request.setAttribute("patients", patients);
@@ -361,14 +363,14 @@ public class PatientController extends HttpServlet {
         int rowsAffected = patientDAO.delete(patientToBeDeleted);
 
         if (rowsAffected > 0) {
-            request.setAttribute("success", "Patient DELETED ;) !");
+            request.setAttribute("success", "Patient has been deleted successfully.");
         } else {
             switch (rowsAffected) {
                 case -1:
-                    request.setAttribute("error", "Patient not deleted due to a Constraint fail.");
+                    request.setAttribute("error", "Patient has not been deleted due to a constraint fail.");
                     break;
                 case -2:
-                    request.setAttribute("error", "Patient not deleted due to an Error, contact administrator.");
+                    request.setAttribute("error", "Patient has not been deleted due to an error, contact administrator.");
                     break;
                 default:
                     response.sendRedirect("patient.jsp");

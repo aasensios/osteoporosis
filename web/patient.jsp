@@ -162,15 +162,18 @@
             <form action="patient_controller" method="POST">
               <div class="form-group row">
                 <label for="inputAge" class="col-sm-3">Age:</label>
-                <input type="number" class="form-control col-sm-9" id="inputAge" name="age" placeholder="Age">
+                <input type="number" class="form-control col-sm-9" id="inputAge" name="age" placeholder="Age"
+                       value="<c:out value="${patient_to_modify.age}"/>">
               </div>
               <div class="form-group row">
                 <label for="inputWeight" class="col-sm-3">Weight (kg):</label>
-                <input type="number" class="form-control col-sm-9" id="inputWeight" name="weight" placeholder="Weight">
+                <input type="number" class="form-control col-sm-9" id="inputWeight" name="weight" placeholder="Weight"
+                       value="<c:out value="${patient_to_modify.weight}"/>">
               </div>
               <div class="form-group row">
                 <label for="inputHeight" class="col-sm-3">Height (m):</label>
-                <input type="number" class="form-control col-sm-9" id="inputHeight" name="height" placeholder="Height">
+                <input type="number" class="form-control col-sm-9" id="inputHeight" name="height" placeholder="Height"
+                       value="<c:out value="${patient_to_modify.height}"/>">
               </div>
               <div class="form-group row">
                 <label for="inputClassification" class="col-sm-3">Classification:</label>
@@ -183,7 +186,8 @@
               </div>
               <div class="form-group row">
                 <label for="inputMenarche" class="col-sm-3">Menarche:</label>
-                <input type="number" class="form-control col-sm-9" id="inputMenarche" name="menarche" placeholder="Menarche">
+                <input type="number" class="form-control col-sm-9" id="inputMenarche" name="menarche" placeholder="Menarche"
+                       value="<c:out value="${patient_to_modify.menarche}"/>">
               </div>
               <div class="form-group row">
                 <label for="inputMenopause" class="col-sm-3">Menopause:</label>
@@ -216,7 +220,7 @@
                       <button type="submit" class="btn btn-success" name="action" value="add">Add Patient</button>
                   </c:when>
                   <c:when test="${patient_to_modify != null}">
-                      <input type="hidden" value="${patient_to_modify.registerId}" name="id"/>
+                      <input type="hidden" value="${patient_to_modify.registerId}" name="registerId"/>
                       <button type="submit" class="btn btn-warning" name="action" value="modify">Modify Patient</button>
                   </c:when>
                   <c:otherwise>

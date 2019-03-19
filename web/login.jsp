@@ -22,8 +22,8 @@
       <input type="text" name="username" id="inputUsername" class="form-control" placeholder="Username" required autofocus>
       <label for="inputPassword" class="sr-only">Password</label>
       <input type="password" name="password" id="inputPassword" class="form-control" placeholder="Password" required>
-      <c:if test="${$param.error != null}">
-          <p id="error">Invalid username/password</p>
+      <c:if test="${error != null}">
+          <div class="alert alert-danger" role="alert">${error}</div>
       </c:if>
       <button class="btn btn-lg btn-primary btn-block" type="submit" name="action" value="login">Log in</button>
       <p class="mt-5 mb-3 text-muted">Institut Provençana © 2018-2019</p>

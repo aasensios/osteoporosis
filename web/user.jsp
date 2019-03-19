@@ -63,22 +63,24 @@
                     <td scope="row">${user.username}</td>
                     <td scope="row">${user.password}</td>
                     <td scope="row">${user.role}</td>
+                    <!--Modify / Delete buttons appear if the according option is clicked-->
+                    <c:choose>
+                        <c:when test="${param.action == 'modify_form'}">
+                            <td scope="row">
+                              <button class="btn btn-warning" type="submit" value="${user.username};${user.password};${user.role}" name="user">Modify</button>
+                              <input type="hidden" name="action" value="user_to_modify"/>
+                            </td>
+                        </c:when>
+                        <c:when test="${param.action == 'delete_form'}">
+                            <td scope="row">
+                              <button class="btn btn-danger" type="submit" value="${user.username};${user.password};${user.role}" name="user" onlcick="confirm(Are you sure?)">Delete</button>
+                              <input type="hidden" name="action" value="user_to_delete"/>
+                            </td>
+                        </c:when>
+                    </c:choose>
                   </tr>
               </c:forEach>
-              <c:choose>
-                  <c:when test="${param.action == 'modify_form'}">
-                      <td scope="row">
-                        <button class="btn btn-warning" type="submit" value="${user.username};${user.password};${user.role}" name="user">Modify</button>
-                        <input type="hidden" name="action" value="user_to_modify"/>
-                      </td>
-                  </c:when>
-                  <c:when test="${param.action == 'delete_form'}">
-                      <td scope="row">
-                        <button class="btn btn-danger" type="submit" value="${user.username};${user.password};${user.role}" name="user" onlcick="confirm(Are you sure?)">Delete</button>
-                        <input type="hidden" name="action" value="user_to_delete"/>
-                      </td>
-                  </c:when>
-              </c:choose>
+
               </tbody>
             </table>
         </c:if>
@@ -88,7 +90,8 @@
             <form action="user_controller" method="POST">
               <div class="form-group row">
                 <label for="inputUsername" class="col-sm-3">Username:</label>
-                <input type="text" class="form-control col-sm-9" id="inputUsername" name="username" placeholder="Username">
+                <input type="text" class="form-control col-sm-9" id="inputUsername" name="username" placeholder="Username" 
+                       value="<c:out value="${user_to_modify.username}"/>">
               </div>
               <div class="form-group row">
                 <label for="inputPassword" class="col-sm-3">Password:</label>
