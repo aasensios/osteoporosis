@@ -8,6 +8,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Properties;
 
 import model.Patient;
@@ -60,7 +61,6 @@ public class PatientDAO {
             }
         } catch (SQLException e) {
             System.out.println(e.getMessage());
-
         }
 
         return list;
@@ -192,6 +192,30 @@ public class PatientDAO {
         }
 
         return list;
+    }
+
+    /**
+     * Counts the number of patients for each age group in database.
+     * @return 
+     */
+    public HashMap<String, Integer> countAgeGroups() {
+        
+        HashMap<String, Integer> ageGroups = new HashMap<>();
+                
+        try (
+                Connection conn = dataSource.getConnection();
+                Statement st = conn.createStatement();) {
+            // COUNT_AGEGROUPS = SELECT ageGroup, COUNT(ageGroup) FROM patients GROUP BY ageGroup
+            ResultSet res = st.executeQuery(getQuery("COUNT_AGEGROUPS"));
+            while (res.next()) {
+                ageGroups.put(res.getString("ageGroup"), res.getInt("COUNT(ageGroup)"));
+            }
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+        
+        return ageGroups;
+        
     }
     /**
      * TODO unified search bar

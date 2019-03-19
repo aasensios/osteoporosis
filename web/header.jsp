@@ -23,6 +23,8 @@
               <a class="nav-link dropdown-toggle" href="#" id="dropdown01" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Patients</a>
               <div class="dropdown-menu" aria-labelledby="dropdown01">
                 <a class="dropdown-item" href="patient_controller?action=list_all">List All Patients</a>
+                <a class="dropdown-item" href="patient_controller?action=make_graphic">Make Graphic (AgeGroups)</a>
+                <!--<a class="dropdown-item" href="patient_controller?action=make_graphic">Make Graphic (Classifications)</a>-->
                 <a class="dropdown-item" href="patient_controller?action=filter_form">Filter Patients</a>
                 <a class="dropdown-item" href="patient_controller?action=add_form">Add Patient</a>
                 <a class="dropdown-item" href="patient_controller?action=modify_form">Modify Patient</a>

@@ -13,6 +13,18 @@ import javax.servlet.http.HttpServletResponse;
 import model.Patient;
 import model.persist.PatientDAO;
 
+// Imports for graphics
+import org.jfree.chart.ChartFactory;
+import org.jfree.chart.ChartUtilities;
+import org.jfree.chart.JFreeChart;
+import java.io.File;
+import org.jfree.chart.plot.*;
+import java.io.*;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import org.jfree.data.category.DefaultCategoryDataset;
+
 @WebServlet(name = "PatientController", urlPatterns = {"/patient_controller"})
 public class PatientController extends HttpServlet {
 
@@ -43,6 +55,9 @@ public class PatientController extends HttpServlet {
         switch (action) {
             case "list_all":
                 listAll(request, response);
+                break;
+            case "make_graphic":
+                makeGraphic(request, response);
                 break;
             case "filter_form":
                 showFormFilter(request, response);
@@ -92,6 +107,38 @@ public class PatientController extends HttpServlet {
         request.setAttribute("patients", patients);
         RequestDispatcher dispatcher = request.getRequestDispatcher("patient.jsp");
         dispatcher.forward(request, response);
+
+    }
+
+    /**
+     * Makes a graphic with the statistics of all patients.
+     *
+     * @param request
+     * @param response
+     */
+    private void makeGraphic(HttpServletRequest request, HttpServletResponse response) {
+
+        // Get all patients
+        HashMap<String, Integer> ageGroups = patientDAO.countAgeGroups();
+
+        // Create a simple barplot for AgeGroups
+        DefaultCategoryDataset dataset = new DefaultCategoryDataset();
+
+        for (Map.Entry<String, Integer> ageGroup : ageGroups.entrySet()) {
+            dataset.setValue(ageGroup.getValue(), "AgeGroups", ageGroup.getKey());
+        }
+
+        JFreeChart chart = ChartFactory.createBarChart("Ages of Osteoporosis Patients", "Age Group", "Patients number", dataset, PlotOrientation.VERTICAL, false, true, false);
+
+        try {
+            response.setContentType("image/png");
+            OutputStream os = response.getOutputStream();
+            ChartUtilities.writeChartAsPNG(os, chart, 625, 500);
+        } catch (IOException e) {
+            System.out.println(e.getMessage());
+            System.err.println("An error occurred while creating the graphic.");
+            request.setAttribute("error", "An error occurred while creating the graphic.");
+        }
 
     }
 
