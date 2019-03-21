@@ -9,6 +9,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Properties;
 
 import model.Patient;
@@ -35,37 +36,49 @@ public class PatientDAO {
         return queries.getProperty(queryName);
     }
 
-    public ArrayList<Patient> listAll() {
-        ArrayList<Patient> list = new ArrayList<>();
+    /**
+     * List all patients.
+     *
+     * @return an array of Patient objects
+     */
+    public List<Patient> list() {
+
+        List<Patient> patients = new ArrayList<>();
 
         // Parenthesis try block: 'finally' is not necessary to close the database connection,
         // because the parenthesis close the connection automatically.
         try (
                 Connection conn = dataSource.getConnection();
-                Statement st = conn.createStatement();) {
-            // SELECT_ALL = SELECT * FROM patients
-            ResultSet res = st.executeQuery(getQuery("SELECT_ALL"));
-            while (res.next()) {
+                Statement st = conn.createStatement();
+                ResultSet resultSet = st.executeQuery(getQuery("SELECT_ALL"));) {
+            while (resultSet.next()) {
                 Patient patient = new Patient();
-                patient.setRegisterId(res.getInt("registerId"));
-                patient.setAge(res.getInt("age"));
-                patient.setAgeGroup(res.getString("ageGroup"));
-                patient.setWeight(res.getInt("weight"));
-                patient.setHeight(res.getInt("height"));
-                patient.setImc(res.getDouble("imc"));
-                patient.setClassification(res.getString("classification"));
-                patient.setMenarche(res.getInt("menarche"));
-                patient.setMenopause(res.getBoolean("menopause"));
-                patient.setMenopauseType(res.getString("menopauseType"));
-                list.add(patient);
+                patient.setRegisterId(resultSet.getInt("registerId"));
+                patient.setAge(resultSet.getInt("age"));
+                patient.setAgeGroup(resultSet.getString("ageGroup"));
+                patient.setWeight(resultSet.getInt("weight"));
+                patient.setHeight(resultSet.getInt("height"));
+                patient.setImc(resultSet.getDouble("imc"));
+                patient.setClassification(resultSet.getString("classification"));
+                patient.setMenarche(resultSet.getInt("menarche"));
+                patient.setMenopause(resultSet.getBoolean("menopause"));
+                patient.setMenopauseType(resultSet.getString("menopauseType"));
+                patients.add(patient);
             }
         } catch (SQLException e) {
-            System.out.println(e.getMessage());
+//            System.out.println(e.getMessage());
         }
 
-        return list;
+        return patients;
+
     }
 
+    /**
+     * Inserts a new patient.
+     *
+     * @param patient to be inserted
+     * @return 1 if success; 0 otherwise
+     */
     public int insert(Patient patient) {
         int rowsAffected;
 
@@ -87,7 +100,7 @@ public class PatientDAO {
 
             rowsAffected = pst.executeUpdate();
         } catch (SQLException e) {
-            System.out.println(e.getMessage());
+//            System.out.println(e.getMessage());
             rowsAffected = 0;
         }
 
@@ -120,7 +133,7 @@ public class PatientDAO {
 
             rowsAffected = pst.executeUpdate();
         } catch (SQLException e) {
-            System.out.println(e.getMessage());
+//            System.out.println(e.getMessage());
             rowsAffected = 0;
         }
 
@@ -134,18 +147,21 @@ public class PatientDAO {
      * @return 1 if success, -1 if constraint fail, -2 if SQL exception occurs
      */
     public int delete(Patient patient) {
+        
         int rowsAffected = 0;
 
-        try (Connection conn = dataSource.getConnection();
+        try (
+                Connection conn = dataSource.getConnection();
                 PreparedStatement pst = conn.prepareStatement(getQuery("DELETE"));) {
             pst.setInt(1, patient.getRegisterId());
             rowsAffected = pst.executeUpdate();
         } catch (SQLException e) {
-            System.out.println(e.getMessage());
+//            System.out.println(e.getMessage());
             rowsAffected = -2;
         }
 
         return rowsAffected;
+        
     }
 
     /**
@@ -157,7 +173,7 @@ public class PatientDAO {
      */
     public ArrayList<Patient> filter(Patient filterPatient) {
 
-        ArrayList<Patient> list = new ArrayList<>();
+        ArrayList<Patient> patients = new ArrayList<>();
 
         // Parenthesis try block: 'finally' is not necessary to close the database connection,
         // because the parenthesis close the connection automatically.
@@ -165,57 +181,56 @@ public class PatientDAO {
                 Connection conn = dataSource.getConnection();
                 PreparedStatement pst = conn.prepareStatement(getQuery("FILTER"));) {
 
-            // FILTER = SELECT * FROM patients WHERE (classification=? AND menopause=? AND menopauseType=?);
             pst.setString(1, filterPatient.getClassification());
             pst.setBoolean(2, filterPatient.getMenopause());
             pst.setString(3, filterPatient.getMenopauseType());
 
             // executeQuery without parameters because it's a prepared statement
-            ResultSet res = pst.executeQuery();
+            ResultSet resultSet = pst.executeQuery();
 
-            while (res.next()) {
+            while (resultSet.next()) {
                 Patient patient = new Patient();
-                patient.setRegisterId(res.getInt("registerId"));
-                patient.setAge(res.getInt("age"));
-                patient.setAgeGroup(res.getString("ageGroup"));
-                patient.setWeight(res.getInt("weight"));
-                patient.setHeight(res.getInt("height"));
-                patient.setImc(res.getDouble("imc"));
-                patient.setClassification(res.getString("classification"));
-                patient.setMenarche(res.getInt("menarche"));
-                patient.setMenopause(res.getBoolean("menopause"));
-                patient.setMenopauseType(res.getString("menopauseType"));
-                list.add(patient);
+                patient.setRegisterId(resultSet.getInt("registerId"));
+                patient.setAge(resultSet.getInt("age"));
+                patient.setAgeGroup(resultSet.getString("ageGroup"));
+                patient.setWeight(resultSet.getInt("weight"));
+                patient.setHeight(resultSet.getInt("height"));
+                patient.setImc(resultSet.getDouble("imc"));
+                patient.setClassification(resultSet.getString("classification"));
+                patient.setMenarche(resultSet.getInt("menarche"));
+                patient.setMenopause(resultSet.getBoolean("menopause"));
+                patient.setMenopauseType(resultSet.getString("menopauseType"));
+                patients.add(patient);
             }
         } catch (SQLException e) {
             System.out.println(e.getMessage());
         }
 
-        return list;
+        return patients;
     }
 
     /**
      * Counts the number of patients for each age group in database.
-     * @return 
+     *
+     * @return
      */
     public HashMap<String, Integer> countAgeGroups() {
-        
+
         HashMap<String, Integer> ageGroups = new HashMap<>();
-                
+
         try (
                 Connection conn = dataSource.getConnection();
-                Statement st = conn.createStatement();) {
-            // COUNT_AGEGROUPS = SELECT ageGroup, COUNT(ageGroup) FROM patients GROUP BY ageGroup
-            ResultSet res = st.executeQuery(getQuery("COUNT_AGEGROUPS"));
-            while (res.next()) {
-                ageGroups.put(res.getString("ageGroup"), res.getInt("COUNT(ageGroup)"));
+                Statement st = conn.createStatement();
+                ResultSet resultSet = st.executeQuery(getQuery("COUNT_AGEGROUPS"));) {
+            while (resultSet.next()) {
+                ageGroups.put(resultSet.getString("ageGroup"), resultSet.getInt("COUNT(ageGroup)"));
             }
         } catch (SQLException e) {
             System.out.println(e.getMessage());
         }
-        
+
         return ageGroups;
-        
+
     }
     /**
      * TODO unified search bar

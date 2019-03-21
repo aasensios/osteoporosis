@@ -3,10 +3,11 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package controllers;
+package controller;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -16,16 +17,17 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import model.User;
 import model.persist.UserDAO;
-import utils.Validator;
+import util.Validator;
 
 /**
- * UserController
+ * UserServlet
  *
  * @author Alejandro Asensio
  * @version 2019-02-07
  */
-@WebServlet(name = "UserController", urlPatterns = {"/user_controller"})
-public class UserController extends HttpServlet {
+//@WebServlet(name = "UserServlet", urlPatterns = {"/users"})
+@WebServlet("/users")
+public class UserServlet extends HttpServlet {
 
     private String path;
     private UserDAO userDAO;
@@ -56,8 +58,8 @@ public class UserController extends HttpServlet {
                 case "logout":
                     logout(request, response);
                     break;
-                case "list_all":
-                    listAll(request, response);
+                case "list":
+                    list(request, response);
                     break;
                 case "add_form":
                     showFormAdd(request, response);
@@ -149,11 +151,11 @@ public class UserController extends HttpServlet {
      * @param request
      * @param response
      */
-    private void listAll(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    private void list(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 
-        ArrayList<User> users = userDAO.listAll();
+        List<User> users = userDAO.list();
         request.setAttribute("users", users);
-        RequestDispatcher dispatcher = request.getRequestDispatcher("user.jsp");
+        RequestDispatcher dispatcher = request.getRequestDispatcher("users.jsp");
         dispatcher.forward(request, response);
 
     }
@@ -169,7 +171,7 @@ public class UserController extends HttpServlet {
     private void showFormAdd(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-        response.sendRedirect("user.jsp?showFormAdd");
+        response.sendRedirect("users.jsp?showFormAdd");
 
     }
 
@@ -196,10 +198,10 @@ public class UserController extends HttpServlet {
                 || password == null
                 || passwordRepeat == null) {
             request.setAttribute("error", "None of the fields can be empty!");
-            response.sendRedirect("user.jsp");
+            response.sendRedirect("users.jsp");
         } else if (!password.equals(passwordRepeat)) {
             request.setAttribute("error", "Passwords doesn't match!");
-            response.sendRedirect("user.jsp");
+            response.sendRedirect("users.jsp");
         }
 
         // User construction
@@ -215,7 +217,7 @@ public class UserController extends HttpServlet {
             request.setAttribute("error", "User not inserted :( !");
         }
 
-        RequestDispatcher dispatcher = request.getRequestDispatcher("user.jsp");
+        RequestDispatcher dispatcher = request.getRequestDispatcher("users.jsp");
         dispatcher.forward(request, response);
 
     }
@@ -231,7 +233,7 @@ public class UserController extends HttpServlet {
     private void showFormModify(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-        ArrayList<User> users = userDAO.listAll();
+        List<User> users = userDAO.list();
 
         // users list empty case
         if (users.isEmpty()) {
@@ -239,7 +241,7 @@ public class UserController extends HttpServlet {
         }
 
         request.setAttribute("users", users);
-        RequestDispatcher dispatcher = request.getRequestDispatcher("user.jsp");
+        RequestDispatcher dispatcher = request.getRequestDispatcher("users.jsp");
         dispatcher.forward(request, response);
 
     }
@@ -267,7 +269,7 @@ public class UserController extends HttpServlet {
         );
 
         request.setAttribute("user_to_modify", userToBeModified);
-        RequestDispatcher dispatcher = request.getRequestDispatcher("user.jsp");
+        RequestDispatcher dispatcher = request.getRequestDispatcher("users.jsp");
         dispatcher.forward(request, response);
 
     }
@@ -287,7 +289,7 @@ public class UserController extends HttpServlet {
                 || passwordRepeat == null
                 || role == null) {
             request.setAttribute("error", "None of the fields can be empty!");
-            response.sendRedirect("user.jsp");
+            response.sendRedirect("users.jsp");
         }
 
         // User construction
@@ -304,7 +306,7 @@ public class UserController extends HttpServlet {
             request.setAttribute("error", "User not modified :( !");
         }
 
-        RequestDispatcher dispatcher = request.getRequestDispatcher("user.jsp");
+        RequestDispatcher dispatcher = request.getRequestDispatcher("users.jsp");
         dispatcher.forward(request, response);
     }
 
@@ -318,7 +320,7 @@ public class UserController extends HttpServlet {
      */
     private void showFormDelete(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 
-        ArrayList<User> users = userDAO.listAll();
+        List<User> users = userDAO.list();
 
         // users list empty case
         if (users.isEmpty()) {
@@ -326,7 +328,7 @@ public class UserController extends HttpServlet {
         }
 
         request.setAttribute("users", users);
-        RequestDispatcher dispatcher = request.getRequestDispatcher("user.jsp");
+        RequestDispatcher dispatcher = request.getRequestDispatcher("users.jsp");
         dispatcher.forward(request, response);
 
     }

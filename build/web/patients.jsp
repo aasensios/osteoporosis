@@ -23,9 +23,19 @@
     <main class="container" role="main">
       <div class="starter-template">
 
+        <!--CreatePDF button-->
+        <c:if test="${filtered}">
+            <a class="btn btn-danger" href="patients?action=createPDF">Crate PDF</a>
+            <br>
+            <br>
+        </c:if>
+
         <!-- Patients table -->
+        <c:if test="${patients == null}">
+            <span class="alert alert-warning">${messages.error}</span>
+        </c:if>
         <c:if test="${patients != null}">
-            <form action="patient_controller" method="POST">
+            <form action="patients" method="post">
               <table class="table table-striped">
                 <thead class="thead-dark">
                   <tr>
@@ -48,10 +58,10 @@
                           <c:when test="${showFormFilter}">
                           <th scope="col">Filter Patients</th>
                           </c:when>
-                          <c:when test="${param.action == 'modify_form'}">
+                          <c:when test="${showModifyButtons}">
                           <th scope="col">Modify Patient</th>
                           </c:when>
-                          <c:when test="${param.action == 'delete_form'}">
+                          <c:when test="${showDeleteButtons}">
                           <th scope="col">Delete Patient</th>
                           </c:when>
                       </c:choose>
@@ -137,13 +147,13 @@
                         </c:if>
                         <!--Modify / Delete buttons appear if the according option is clicked-->
                         <c:choose>
-                            <c:when test="${param.action == 'modify_form'}">
+                            <c:when test="${showModifyButtons}">
                                 <td scope="row">
                                   <button class="btn btn-warning" type="submit" value="${patient.registerId};${patient.age};${patient.ageGroup};${patient.weight};${patient.height};${patient.imc};${patient.classification};${patient.menarche};${patient.menopause};${patient.menopauseType}" name="patient">Modify</button>
                                   <input type="hidden" name="action" value="patient_to_modify"/>
                                 </td>
                             </c:when>
-                            <c:when test="${param.action == 'delete_form'}">
+                            <c:when test="${showDeleteButtons}">
                                 <td scope="row">
                                   <button class="btn btn-danger" type="submit" value="${patient.registerId};${patient.age};${patient.ageGroup};${patient.weight};${patient.height};${patient.imc};${patient.classification};${patient.menarche};${patient.menopause};${patient.menopauseType}" name="patient" onlcick="confirm(Are you sure?)">Delete</button>
                                   <input type="hidden" name="action" value="patient_to_delete"/>
@@ -157,66 +167,96 @@
             </form>
         </c:if>
 
-        <!-- Patient Form (add and modify) -->
-        <c:if test="${param.showFormAdd != null || patient_to_modify != null}" >
-            <form action="patient_controller" method="POST">
+        <!-- Messages: Success or Error -->
+        <c:choose>
+            <c:when test="${messages.success != null}">
+                <span class="alert alert-success" role="alert">${messages.success}</span>
+            </c:when>
+            <c:when test="${messages.error != null}">
+                <span class="alert alert-danger" role="alert">${messages.error}</span>
+            </c:when>
+            <c:otherwise>
+            </c:otherwise>
+        </c:choose>
+        <br>
+
+        <!-- Forms: Add and Modify -->
+        <c:if test="${showFormAdd || patient_to_modify != null}" >
+
+            <form action="patients" method="post">
               <div class="form-group row">
                 <label for="inputAge" class="col-sm-3">Age:</label>
-                <input type="number" class="form-control col-sm-9" id="inputAge" name="age" placeholder="Age"
+                <input type="number" class="form-control col-sm-6" id="inputAge" name="age" placeholder="Age"
                        value="<c:out value="${patient_to_modify.age}"/>">
-              </div>
-              <div class="form-group row">
-                <label for="inputWeight" class="col-sm-3">Weight (kg):</label>
-                <input type="number" class="form-control col-sm-9" id="inputWeight" name="weight" placeholder="Weight"
-                       value="<c:out value="${patient_to_modify.weight}"/>">
-              </div>
-              <div class="form-group row">
-                <label for="inputHeight" class="col-sm-3">Height (m):</label>
-                <input type="number" class="form-control col-sm-9" id="inputHeight" name="height" placeholder="Height"
-                       value="<c:out value="${patient_to_modify.height}"/>">
-              </div>
-              <div class="form-group row">
-                <label for="inputClassification" class="col-sm-3">Classification:</label>
-                <select class="form-control col-sm-9 custom-select" name="classification" id="inputClassification">
-                  <option value="">Choose...</option>
-                  <option value="normal">Normal</option>
-                  <option value="osteopenia">Osteopenia</option>
-                  <option value="osteoporosi">Osteoporosi</option>
-                </select>
-              </div>
-              <div class="form-group row">
-                <label for="inputMenarche" class="col-sm-3">Menarche:</label>
-                <input type="number" class="form-control col-sm-9" id="inputMenarche" name="menarche" placeholder="Menarche"
-                       value="<c:out value="${patient_to_modify.menarche}"/>">
-              </div>
-              <div class="form-group row">
-                <label for="inputMenopause" class="col-sm-3">Menopause:</label>
-                <div class="form-check">
-                  <input class="form-check-input" type="radio" name="menopause" value="yes">
-                  <label class="form-check-label">
-                    SI
-                  </label>
+                <c:if test="${messages != null}"><span class="text-danger col-sm-3">${messages.age}</span></c:if>
+
                 </div>
-                <div class="form-check">
-                  <input class="form-check-input" type="radio" name="menopause" value="no">
-                  <label class="form-check-label">
-                    NO
-                  </label>
+                <div class="form-group row">
+                  <label for="inputWeight" class="col-sm-3">Weight (kg):</label>
+                  <input type="number" class="form-control col-sm-6" id="inputWeight" name="weight" placeholder="Weight"
+                         value="<c:out value="${patient_to_modify.weight}"/>">
+                <c:if test="${messages != null}"><span class="text-danger col-sm-3">${messages.weight}</span></c:if>
+
                 </div>
-              </div>
-              <div class="form-group row">
-                <label for="inputMenopauseType" class="col-sm-3">Menopause Type:</label>
-                <select class="form-control col-sm-9 custom-select" name="menopauseType" id="inputMenopauseType">
-                  <option value="">Choose...</option>n
-                  <option value="no consta">No consta</option>
-                  <option value="natural">Natural</option>
-                  <option value="ovariectomia">Ovariectomia</option>
-                  <option value="histeroctomia">Histeroctomia</option>
-                  <option value="ambdues">Ambdues</option>
-                </select>
-              </div>
+                <div class="form-group row">
+                  <label for="inputHeight" class="col-sm-3">Height (m):</label>
+                  <input type="number" class="form-control col-sm-6" id="inputHeight" name="height" placeholder="Height"
+                         value="<c:out value="${patient_to_modify.height}"/>">
+                <c:if test="${messages != null}"><span class="text-danger col-sm-3">${messages.height}</span></c:if>
+
+                </div>
+                <div class="form-group row">
+                  <label for="inputClassification" class="col-sm-3">Classification:</label>
+                  <select class="form-control col-sm-6 custom-select" name="classification" id="inputClassification">
+                    <option value="">Choose...</option>
+                    <option value="normal">Normal</option>
+                    <option value="osteopenia">Osteopenia</option>
+                    <option value="osteoporosi">Osteoporosi</option>
+                  </select>
+                <c:if test="${messages != null}"><span class="text-danger col-sm-3">${messages.classification}</span></c:if>
+
+                </div>
+                <div class="form-group row">
+                  <label for="inputMenarche" class="col-sm-3">Menarche:</label>
+                  <input type="number" class="form-control col-sm-6" id="inputMenarche" name="menarche" placeholder="Menarche"
+                         value="<c:out value="${patient_to_modify.menarche}"/>">
+                <c:if test="${messages != null}"><span class="text-danger col-sm-3">${messages.menarche}</span></c:if>
+
+                </div>
+                <div class="form-group row">
+                  <label for="inputMenopause" class="col-sm-3">Menopause:</label>
+                  <div class="col-sm-6">
+                    <div class="form-check">
+                      <input class="form-check-input" type="radio" id="inputMenopause" name="menopause" value="yes">
+                      <label class="form-check-label">
+                        SI
+                      </label>
+                    </div>
+                    <div class="form-check">
+                      <input class="form-check-input" type="radio" id="inputMenopause" name="menopause" value="no">
+                      <label class="form-check-label">
+                        NO
+                      </label>
+                    </div>
+                  </div>
+                <c:if test="${messages != null}"><span class="text-danger col-sm-3">${messages.menopause}</span></c:if>
+
+                </div>
+                <div class="form-group row">
+                  <label for="inputMenopauseType" class="col-sm-3">Menopause Type:</label>
+                  <select class="form-control col-sm-6 custom-select" name="menopauseType" id="inputMenopauseType">
+                    <option value="">Choose...</option>n
+                    <option value="no consta">No consta</option>
+                    <option value="natural">Natural</option>
+                    <option value="ovariectomia">Ovariectomia</option>
+                    <option value="histeroctomia">Histeroctomia</option>
+                    <option value="ambdues">Ambdues</option>
+                  </select>
+                <c:if test="${messages != null}"><span class="text-danger col-sm-3">${messages.menopauseType}</span></c:if>
+                </div>
+
               <c:choose>
-                  <c:when test="${param.showFormAdd != null}">
+                  <c:when test="${showFormAdd}">
                       <button type="submit" class="btn btn-success" name="action" value="add">Add Patient</button>
                   </c:when>
                   <c:when test="${patient_to_modify != null}">
@@ -228,18 +268,6 @@
               </c:choose>
             </form>
         </c:if>
-
-        <!-- Messages -->
-        <c:choose>
-            <c:when test="${success != null}">
-                <div class="alert alert-success" role="alert">${success}</div>
-            </c:when>
-            <c:when test="${error != null}">
-                <div class="alert alert-danger" role="alert">${error}</div>
-            </c:when>
-            <c:otherwise>
-            </c:otherwise>
-        </c:choose>
       </div>
     </main>
     <jsp:include page="html/footer.html"/>

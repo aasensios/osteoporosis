@@ -15,7 +15,7 @@
     <link rel="stylesheet" href="css/login.css">
   </head>
   <body class="text-center" data-gr-c-s-loaded="true">
-    <form class="form-signin" method="post" action="user_controller">
+    <form class="form-signin" method="post" action="users">
       <img class="mb-4" src="images/icon-bone.png" alt="icon-bone" width="72" height="72">
       <p>Log in</p>
       <label for="inputUsername" class="sr-only">Username</label>

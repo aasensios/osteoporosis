@@ -8,6 +8,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
 import model.User;
 
@@ -39,7 +40,7 @@ public class UserDAO {
      * Finds a user by its username and password inside the database.
      *
      * @param searchedUser
-     * @return
+     * @return the found user if success; null otherwise
      */
     public User find(User searchedUser) {
         User foundUser = null;
@@ -62,8 +63,9 @@ public class UserDAO {
         return foundUser;
     }
 
-    public ArrayList<User> listAll() {
-        ArrayList<User> list = new ArrayList<>();
+    public List<User> list() {
+        
+        List<User> users = new ArrayList<>();
 
         // si usamos un try con parentesis, no hace falta que tengamos un finally para cerrar la conexion, 
         // ya que los parentesis cierran la conexion automaticamente
@@ -76,12 +78,13 @@ public class UserDAO {
                 user.setUsername(res.getString("username"));
                 user.setPassword(res.getString("password"));
                 user.setRole(res.getString("role"));
-                list.add(user);
+                users.add(user);
             }
         } catch (SQLException e) {
         }
 
-        return list;
+        return users;
+        
     }
 
     public int insert(User user) {

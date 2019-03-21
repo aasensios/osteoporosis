@@ -22,40 +22,41 @@
             <li class="nav-item dropdown">
               <a class="nav-link dropdown-toggle" href="#" id="dropdown01" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Patients</a>
               <div class="dropdown-menu" aria-labelledby="dropdown01">
-                <a class="dropdown-item" href="patient_controller?action=list_all">List All Patients</a>
-                <a class="dropdown-item" href="patient_controller?action=make_graphic">Make Graphic (AgeGroups)</a>
-                <!--<a class="dropdown-item" href="patient_controller?action=make_graphic">Make Graphic (Classifications)</a>-->
-                <a class="dropdown-item" href="patient_controller?action=filter_form">Filter Patients</a>
-                <a class="dropdown-item" href="patient_controller?action=add_form">Add Patient</a>
-                <a class="dropdown-item" href="patient_controller?action=modify_form">Modify Patient</a>
-                <a class="dropdown-item" href="patient_controller?action=delete_form">Delete Patient</a>
+                <a class="dropdown-item" href="patients?action=list">List</a>
+                <a class="dropdown-item" href="patients?action=add_form">Add</a>
+                <a class="dropdown-item" href="patients?action=modify_form">Modify</a>
+                <a class="dropdown-item" href="patients?action=delete_form">Delete</a>
+                <a class="dropdown-item" href="patients?action=filter_form">Filter</a>
+                <a class="dropdown-item" href="patients?action=make_graphic_ageGroups">Make Graphic</a>
+                <!--<a class="dropdown-item" href="patients?action=make_graphic_classifications">Make Graphic</a>-->
               </div>
             </li>
             <c:if test="${role == 'admin'}">
                 <li class="nav-item dropdown">
                   <a class="nav-link dropdown-toggle" href="#" id="dropdown02" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Users</a>
                   <div class="dropdown-menu" aria-labelledby="dropdown02">
-                    <a class="dropdown-item" href="user_controller?action=list_all">List All Users</a>
-                    <a class="dropdown-item" href="user_controller?action=add_form">Add User</a>
-                    <a class="dropdown-item" href="user_controller?action=modify_form">Modify User</a>
-                    <a class="dropdown-item" href="user_controller?action=delete_form">Delete User</a>
+                    <a class="dropdown-item" href="users?action=list">List</a>
+                    <a class="dropdown-item" href="users?action=add_form">Add</a>
+                    <a class="dropdown-item" href="users?action=modify_form">Modify</a>
+                    <a class="dropdown-item" href="users?action=delete_form">Delete</a>
                   </div>
                 </li>
             </c:if>
         </c:if>
       </ul>
     </div>
-    <form class="form-inline mt-2 mt-md-0" action="patient_controller" method="GET">
-      <input class="form-control mr-sm-2" type="text" placeholder="TODO: unified search bar..." aria-label="Search" name="searchCriteria">
-      <button class="btn btn-outline-success my-2 my-sm-0" type="submit" name="action" value="filter">Search</button>
-    </form>
+    <!--TODO: unified search bar...-->
+    <!--    <form class="form-inline mt-2 mt-md-0" action="patients" method="GET">
+          <input class="form-control mr-sm-2" type="text" placeholder="TODO: unified search bar..." aria-label="Search" name="searchCriteria">
+          <button class="btn btn-outline-success my-2 my-sm-0" type="submit" name="action" value="filter">Search</button>
+        </form>-->
     <c:choose>
         <c:when test="${!logged_in}">
             <a class="btn btn-primary my-2 my-sm-0" href='login.jsp'>Login</a>
         </c:when>
         <c:otherwise>
-            <a class="btn text-success">${username}</a>
-            <a class="btn btn-secondary my-2 my-sm-0" href='user_controller?action=logout'>Logout</a>
+            <a class="btn text-warning">${username}</a>
+            <a class="btn btn-warning my-2 my-sm-0" href="users?action=logout">Logout</a>
         </c:otherwise>
     </c:choose>
   </nav>

@@ -42,7 +42,7 @@
               </thead>
               <tbody>
                 <c:if test="${param.showFormAdd != null}">
-                <form action="user_controller" method="POST">
+                <form action="users" method="POST">
                   <tr>
                     <td scope="row"><input type="text" placeholder="Username" name="username"></td>
                     <td scope="row"><input type="text" placeholder="Password" name="password"></td>
@@ -87,7 +87,7 @@
 
         <!-- User Form (add and modify) -->
         <c:if test="${param.showFormAdd != null || user_to_modify != null}" >
-            <form action="user_controller" method="POST">
+            <form action="users" method="POST">
               <div class="form-group row">
                 <label for="inputUsername" class="col-sm-3">Username:</label>
                 <input type="text" class="form-control col-sm-9" id="inputUsername" name="username" placeholder="Username" 
