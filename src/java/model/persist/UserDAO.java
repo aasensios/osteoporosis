@@ -147,6 +147,7 @@ public class UserDAO {
             pst.setString(1, user.getUsername());
             rowsAffected = pst.executeUpdate();
         } catch (SQLException e) {
+//            System.out.println(e.getMessage());
             rowsAffected = -2;
         }
 

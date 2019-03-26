@@ -25,15 +25,26 @@
 
         <!--CreatePDF button-->
         <c:if test="${filtered}">
-            <a class="btn btn-danger" href="patients?action=createPDF">Crate PDF</a>
+            <a class="btn btn-info" href="patients?action=createPDF">Crate PDF</a>
             <br>
             <br>
         </c:if>
 
+        <!-- Messages: Success or Error -->
+        <c:choose>
+            <c:when test="${messages.success != null}">
+                <span class="alert alert-success" role="alert">${messages.success}</span>
+            </c:when>
+            <c:when test="${messages.error != null}">
+                <span class="alert alert-danger" role="alert">${messages.error}</span>
+            </c:when>
+            <c:otherwise>
+            </c:otherwise>
+        </c:choose>
+        <br>
+        <br>
+
         <!-- Patients table -->
-        <c:if test="${patients == null}">
-            <span class="alert alert-warning">${messages.error}</span>
-        </c:if>
         <c:if test="${patients != null}">
             <form action="patients" method="post">
               <table class="table table-striped">
@@ -155,7 +166,7 @@
                             </c:when>
                             <c:when test="${showDeleteButtons}">
                                 <td scope="row">
-                                  <button class="btn btn-danger" type="submit" value="${patient.registerId};${patient.age};${patient.ageGroup};${patient.weight};${patient.height};${patient.imc};${patient.classification};${patient.menarche};${patient.menopause};${patient.menopauseType}" name="patient" onlcick="confirm(Are you sure?)">Delete</button>
+                                  <button class="btn btn-danger" type="submit" value="${patient.registerId};${patient.age};${patient.ageGroup};${patient.weight};${patient.height};${patient.imc};${patient.classification};${patient.menarche};${patient.menopause};${patient.menopauseType}" name="patient" onclick="confirm(Are you sure?)">Delete</button>
                                   <input type="hidden" name="action" value="patient_to_delete"/>
                                 </td>
                             </c:when>
@@ -167,41 +178,28 @@
             </form>
         </c:if>
 
-        <!-- Messages: Success or Error -->
-        <c:choose>
-            <c:when test="${messages.success != null}">
-                <span class="alert alert-success" role="alert">${messages.success}</span>
-            </c:when>
-            <c:when test="${messages.error != null}">
-                <span class="alert alert-danger" role="alert">${messages.error}</span>
-            </c:when>
-            <c:otherwise>
-            </c:otherwise>
-        </c:choose>
-        <br>
-
         <!-- Forms: Add and Modify -->
-        <c:if test="${showFormAdd || patient_to_modify != null}" >
+        <c:if test="${showFormAdd || patient != null}" >
 
             <form action="patients" method="post">
               <div class="form-group row">
                 <label for="inputAge" class="col-sm-3">Age:</label>
                 <input type="number" class="form-control col-sm-6" id="inputAge" name="age" placeholder="Age"
-                       value="<c:out value="${patient_to_modify.age}"/>">
+                       value="<c:out value="${patient.age}"/>">
                 <c:if test="${messages != null}"><span class="text-danger col-sm-3">${messages.age}</span></c:if>
 
                 </div>
                 <div class="form-group row">
                   <label for="inputWeight" class="col-sm-3">Weight (kg):</label>
                   <input type="number" class="form-control col-sm-6" id="inputWeight" name="weight" placeholder="Weight"
-                         value="<c:out value="${patient_to_modify.weight}"/>">
+                         value="<c:out value="${patient.weight}"/>">
                 <c:if test="${messages != null}"><span class="text-danger col-sm-3">${messages.weight}</span></c:if>
 
                 </div>
                 <div class="form-group row">
                   <label for="inputHeight" class="col-sm-3">Height (m):</label>
                   <input type="number" class="form-control col-sm-6" id="inputHeight" name="height" placeholder="Height"
-                         value="<c:out value="${patient_to_modify.height}"/>">
+                         value="<c:out value="${patient.height}"/>">
                 <c:if test="${messages != null}"><span class="text-danger col-sm-3">${messages.height}</span></c:if>
 
                 </div>
@@ -219,7 +217,7 @@
                 <div class="form-group row">
                   <label for="inputMenarche" class="col-sm-3">Menarche:</label>
                   <input type="number" class="form-control col-sm-6" id="inputMenarche" name="menarche" placeholder="Menarche"
-                         value="<c:out value="${patient_to_modify.menarche}"/>">
+                         value="<c:out value="${patient.menarche}"/>">
                 <c:if test="${messages != null}"><span class="text-danger col-sm-3">${messages.menarche}</span></c:if>
 
                 </div>
@@ -259,8 +257,8 @@
                   <c:when test="${showFormAdd}">
                       <button type="submit" class="btn btn-success" name="action" value="add">Add Patient</button>
                   </c:when>
-                  <c:when test="${patient_to_modify != null}">
-                      <input type="hidden" value="${patient_to_modify.registerId}" name="registerId"/>
+                  <c:when test="${patient != null}">
+                      <input type="hidden" value="${patient.registerId}" name="registerId"/>
                       <button type="submit" class="btn btn-warning" name="action" value="modify">Modify Patient</button>
                   </c:when>
                   <c:otherwise>

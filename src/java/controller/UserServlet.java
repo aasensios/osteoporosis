@@ -6,8 +6,9 @@
 package controller;
 
 import java.io.IOException;
-import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -31,6 +32,8 @@ public class UserServlet extends HttpServlet {
 
     private String path;
     private UserDAO userDAO;
+    private Map<String, String> messages;
+    private String defaultRole;
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
@@ -49,49 +52,61 @@ public class UserServlet extends HttpServlet {
         path = getServletContext().getRealPath("/WEB-INF/");
         userDAO = new UserDAO(path);
 
-        if (request.getParameter("action") != null) {
-            String action = request.getParameter("action");
-            switch (action) {
-                case "login":
-                    login(request, response);
-                    break;
-                case "logout":
-                    logout(request, response);
-                    break;
-                case "list":
-                    list(request, response);
-                    break;
-                case "add_form":
-                    showFormAdd(request, response);
-                    break;
-                case "add":
-                    addUser(request, response);
-                    break;
-                case "modify_form":
-                    showFormModify(request, response);
-                    break;
-                case "user_to_modify":
-                    modifyUser(request, response);
-                    break;
-                case "modify":
-                    modifyThatUser(request, response);
-                    break;
-                case "delete_form":
-                    showFormDelete(request, response);
-                    break;
-                case "user_to_delete":
-//                    deleteUser(request, response);
-                    break;
-                case "filter":
-//                    filterUser(request, response);
-                    break;
-                default:
-                    response.sendRedirect("index.jsp");
-            }
-        } else {
-            response.sendRedirect("login.jsp");
+        // Prepare messages.
+        messages = new HashMap<>();
+        request.setAttribute("messages", messages);
+
+        defaultRole = "basic";
+
+        String action = request.getParameter("action");
+
+        // Switch block does NOT accept null values.
+        if (action == null) {
+            action = "";
         }
 
+        // Decide which method has to be called
+        switch (action) {
+            case "login":
+                login(request, response);
+                break;
+            case "logout":
+                logout(request, response);
+                break;
+            case "list":
+                list(request, response);
+                break;
+            case "add_form":
+                showFormAdd(request, response);
+                break;
+            case "add":
+                addUser(request, response);
+                break;
+            case "modify_form":
+                showModifyButtons(request, response);
+                break;
+            case "user_to_modify":
+                modifyUser(request, response);
+                break;
+            case "modify":
+                modifyThatUser(request, response);
+                break;
+            case "delete_form":
+                showDeleteButtons(request, response);
+                break;
+            case "user_to_delete":
+//                    deleteUser(request, response);
+                break;
+            case "filter":
+//                    filterUser(request, response);
+                break;
+            default:
+                response.sendRedirect("index.jsp");
+
+        }
+
+        // Refresh the users JSP page
+//        request.getRequestDispatcher("users.jsp").forward(request, response);
     }
 
     /**
@@ -103,7 +118,7 @@ public class UserServlet extends HttpServlet {
      */
     private void login(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
 
-        // Get the user credentials from form
+        // Get user credentials from form
         String username = request.getParameter("username");
         String password = request.getParameter("password");
 
@@ -113,18 +128,15 @@ public class UserServlet extends HttpServlet {
         // Validate those credentials against the database
         User foundUser = userDAO.find(searchedUser);
         if (foundUser != null) {
-            // Create some session attributes
+            // Create a session
             HttpSession session = request.getSession();
             session.setAttribute("logged_in", true);
             session.setAttribute("username", foundUser.getUsername());
             session.setAttribute("role", foundUser.getRole());
-            // Redirect to index
-            response.sendRedirect("index.jsp");
+            request.getRequestDispatcher("index.jsp").forward(request, response);
         } else {
-            // Credentials are not valid
-            request.setAttribute("error", "Username and/or password are not valid.");
-            RequestDispatcher dispatcher = request.getRequestDispatcher("login.jsp");
-            dispatcher.forward(request, response);
+            messages.put("error", "Username and/or password are invalid.");
+            request.getRequestDispatcher("login.jsp").forward(request, response);
         }
 
     }
@@ -136,13 +148,17 @@ public class UserServlet extends HttpServlet {
      * @param response servlet response
      * @throws IOException if an I/O error occurs
      */
-    private void logout(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    private void logout(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+
         // Get the session
         HttpSession session = request.getSession();
+
         // Destroy the session
         session.invalidate();
+
         // Redirect to the initial view
-        response.sendRedirect("index.jsp");
+        request.getRequestDispatcher("index.jsp").forward(request, response);
+
     }
 
     /**
@@ -155,8 +171,14 @@ public class UserServlet extends HttpServlet {
 
         List<User> users = userDAO.list();
         request.setAttribute("users", users);
-        RequestDispatcher dispatcher = request.getRequestDispatcher("users.jsp");
-        dispatcher.forward(request, response);
+
+        if (users.isEmpty()) {
+            messages.put("error", "Users list is empty");
+        } else {
+            messages.put("success", String.format("Total users: %d", users.size()));
+        }
+
+        request.getRequestDispatcher("users.jsp").forward(request, response);
 
     }
 
@@ -171,7 +193,7 @@ public class UserServlet extends HttpServlet {
     private void showFormAdd(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-        response.sendRedirect("users.jsp?showFormAdd");
+        request.setAttribute("showFormAdd", true);
 
     }
 
@@ -187,22 +209,31 @@ public class UserServlet extends HttpServlet {
             throws ServletException, IOException {
 
         // Get form fields
+        // Get and validate username.
         String username = request.getParameter("username");
-        String password = request.getParameter("password");
-        String passwordRepeat = request.getParameter("passwordRepeat");
-//        String role = request.getParameter("role");
-        String role = "basic"; // basic role by default
-
-        // Null input handling
-        if (username == null
-                || password == null
-                || passwordRepeat == null) {
-            request.setAttribute("error", "None of the fields can be empty!");
-            response.sendRedirect("users.jsp");
-        } else if (!password.equals(passwordRepeat)) {
-            request.setAttribute("error", "Passwords doesn't match!");
-            response.sendRedirect("users.jsp");
+        if (username == null || username.trim().isEmpty()) {
+            messages.put("name", "Please enter username");
+        } else if (!username.matches("\\p{Alnum}+")) {
+            messages.put("username", "Please enter alphanumeric characters only");
         }
+
+        // Get and validate password.
+        String password = request.getParameter("password");
+        if (password == null || password.trim().isEmpty()) {
+            messages.put("password", "Please enter password");
+        } else if (password.length() < 3) {
+            messages.put("password", "Password must be at least 3 characters long");
+        }
+
+        // Get and validate password.
+        String passwordRepeat = request.getParameter("passwordRepeat");
+        if (passwordRepeat == null || passwordRepeat.trim().isEmpty()) {
+            messages.put("passwordRepeat", "Please repeat password");
+        } else if (!passwordRepeat.equals(password)) {
+            messages.put("passwordRepeat", "Passwords does not match");
+        }
+
+        String role = defaultRole;
 
         // User construction
         User newUser = new User(
@@ -211,14 +242,14 @@ public class UserServlet extends HttpServlet {
                 role
         );
 
+        // Insert user into database
         if (userDAO.insert(newUser) == 1) {
-            request.setAttribute("success", "User successfully inserted :) !");
+            messages.put("success", "User has been inserted successfully");
         } else {
-            request.setAttribute("error", "User not inserted :( !");
+            messages.put("error", "User has not been inserted");
         }
 
-        RequestDispatcher dispatcher = request.getRequestDispatcher("users.jsp");
-        dispatcher.forward(request, response);
+        request.getRequestDispatcher("users.jsp").forward(request, response);
 
     }
 
@@ -230,19 +261,21 @@ public class UserServlet extends HttpServlet {
      * @throws ServletException
      * @throws IOException
      */
-    private void showFormModify(HttpServletRequest request, HttpServletResponse response)
+    private void showModifyButtons(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
         List<User> users = userDAO.list();
+        request.setAttribute("users", users);
 
-        // users list empty case
         if (users.isEmpty()) {
-            request.setAttribute("warning", "There aren't users.");
+            messages.put("error", "Users list is empty");
+        } else {
+            messages.put("success", String.format("Total users: %d", users.size()));
         }
 
-        request.setAttribute("users", users);
-        RequestDispatcher dispatcher = request.getRequestDispatcher("users.jsp");
-        dispatcher.forward(request, response);
+        request.setAttribute("showModifyButtons", true);
+
+        request.getRequestDispatcher("users.jsp").forward(request, response);
 
     }
 
@@ -318,18 +351,20 @@ public class UserServlet extends HttpServlet {
      * @throws IOException
      * @throws ServletException
      */
-    private void showFormDelete(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    private void showDeleteButtons(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 
         List<User> users = userDAO.list();
+        request.setAttribute("users", users);
 
-        // users list empty case
         if (users.isEmpty()) {
-            request.setAttribute("warning", "There aren't users.");
+            messages.put("error", "Users list is empty");
+        } else {
+            messages.put("success", String.format("Total users: %d", users.size()));
         }
 
-        request.setAttribute("users", users);
-        RequestDispatcher dispatcher = request.getRequestDispatcher("users.jsp");
-        dispatcher.forward(request, response);
+        request.setAttribute("showDeleteButtons", true);
+
+        request.getRequestDispatcher("users.jsp").forward(request, response);
 
     }
 
@@ -342,17 +377,33 @@ public class UserServlet extends HttpServlet {
      */
     private void delete(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 
-//        // Get the selected user by the radio input 
-//        String selectedUsername = request.getParameter("selected");
-//        
-//        if (Validator.isNotEmpty(selectedUsername)) {
-//            User userToBeDeleted = new User(selectedUsername);
-//            int user_deleted = udao.delete(userToBeDeleted);
-//            request.setAttribute("user_deleted", user_deleted);
-//        }
-//        
-//        RequestDispatcher rd = request.getRequestDispatcher("landing.jsp");
-//        rd.forward(request, response);
+        // Get patient from form with fields separated by semicolon ';'.
+        String userCSV = request.getParameter("user");
+        String[] fields = userCSV.split(";");
+
+        // Prapare the patient to be deleted
+        User userToBeDeleted = new User();
+        userToBeDeleted.setUsername(fields[0]);
+
+        // Delete the patient from database
+        int rowsAffected = userDAO.delete(userToBeDeleted);
+
+        if (rowsAffected > 0) {
+            messages.put("success", "User has been deleted successfully");
+        } else {
+            switch (rowsAffected) {
+                case -1:
+                    messages.put("error", "User has not been deleted due to a constraint fail");
+                    break;
+                case -2:
+                    messages.put("error", "User has not been deleted due to an error, contact administrator");
+                    break;
+                default:
+                    showDeleteButtons(request, response);
+            }
+        }
+
+        showDeleteButtons(request, response);
     }
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">

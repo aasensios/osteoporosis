@@ -17,13 +17,13 @@
   <body class="text-center" data-gr-c-s-loaded="true">
     <form class="form-signin" method="post" action="users">
       <img class="mb-4" src="images/icon-bone.png" alt="icon-bone" width="72" height="72">
-      <p>Log in</p>
+      <p>Osteoporosis App</p>
       <label for="inputUsername" class="sr-only">Username</label>
       <input type="text" name="username" id="inputUsername" class="form-control" placeholder="Username" required autofocus>
       <label for="inputPassword" class="sr-only">Password</label>
       <input type="password" name="password" id="inputPassword" class="form-control" placeholder="Password" required>
-      <c:if test="${error != null}">
-          <div class="alert alert-danger" role="alert">${error}</div>
+      <c:if test="${messages.error != null}">
+          <div class="alert alert-danger" role="alert">${messages.error}</div>
       </c:if>
       <button class="btn btn-lg btn-primary btn-block" type="submit" name="action" value="login">Log in</button>
       <p class="mt-5 mb-3 text-muted">Institut Provençana © 2018-2019</p>

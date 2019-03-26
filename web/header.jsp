@@ -36,9 +36,9 @@
                   <a class="nav-link dropdown-toggle" href="#" id="dropdown02" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Users</a>
                   <div class="dropdown-menu" aria-labelledby="dropdown02">
                     <a class="dropdown-item" href="users?action=list">List</a>
-                    <a class="dropdown-item" href="users?action=add_form">Add</a>
-                    <a class="dropdown-item" href="users?action=modify_form">Modify</a>
-                    <a class="dropdown-item" href="users?action=delete_form">Delete</a>
+                    <!--<a class="dropdown-item" href="users?action=add_form">Add</a>-->
+                    <!--<a class="dropdown-item" href="users?action=modify_form">Modify</a>-->
+                    <!--<a class="dropdown-item" href="users?action=delete_form">Delete</a>-->
                   </div>
                 </li>
             </c:if>

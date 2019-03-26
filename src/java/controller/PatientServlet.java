@@ -28,9 +28,10 @@ import org.jfree.data.category.DefaultCategoryDataset;
 import java.io.FileOutputStream;
 import java.util.Date;
 import com.itextpdf.text.*;
+import com.itextpdf.text.pdf.PdfPCell;
+import com.itextpdf.text.pdf.PdfPTable;
 import com.itextpdf.text.pdf.PdfWriter;
 import java.io.OutputStream;
-import javax.servlet.http.HttpSession;
 
 //@WebServlet(name = "PatientServlet", urlPatterns = {"/patients"})
 @WebServlet("/patients")
@@ -40,9 +41,11 @@ public class PatientServlet extends HttpServlet {
     private PatientDAO patientDAO;
     private List<Patient> filteredPatients;
     private Map<String, String> messages;
+    private static Font font = new Font(Font.FontFamily.HELVETICA, 12,
+            Font.NORMAL, BaseColor.BLACK);
 
     // (!) When executed, overrides any previuos file with this filename
-    private static String FILE = "$HOME/patients.pdf";
+    private static String FILE = "patients.pdf";
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
@@ -116,7 +119,7 @@ public class PatientServlet extends HttpServlet {
                 response.sendRedirect("index.jsp");
         }
 
-        // Refresh the patients JSP page
+        // Refresh the patients JSP page after any action
         request.getRequestDispatcher("patients.jsp").forward(request, response);
 
     }
@@ -132,11 +135,16 @@ public class PatientServlet extends HttpServlet {
     private void list(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
+        // Reset the filter attribute, to hide the create PDF button
+        request.setAttribute("filtered", false);
+
         List<Patient> patients = patientDAO.list();
         request.setAttribute("patients", patients);
 
         if (patients.isEmpty()) {
             messages.put("error", "Patients list is empty");
+        } else {
+            messages.put("success", String.format("Total patients: %d", patients.size()));
         }
 
     }
@@ -167,6 +175,9 @@ public class PatientServlet extends HttpServlet {
     private void addPatient(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
+        // Instantiate patient object
+        Patient patient = new Patient();
+
         // Postprocess request: gather and validate submitted data and display the result in the same JSP.
         // Get and validate age.
         String age = request.getParameter("age");
@@ -174,6 +185,8 @@ public class PatientServlet extends HttpServlet {
             messages.put("age", "Please enter age");
         } else if (!age.matches("\\d+")) {
             messages.put("age", "Please enter digits only");
+        } else {
+            patient.setAge(Integer.parseInt(age));
         }
 
         // Get and validate weight.
@@ -182,6 +195,8 @@ public class PatientServlet extends HttpServlet {
             messages.put("weight", "Please enter weight");
         } else if (!weight.matches("\\d+")) {
             messages.put("weight", "Please enter digits only");
+        } else {
+            patient.setWeight(Integer.parseInt(weight));
         }
 
         // Get and validate height.
@@ -190,12 +205,16 @@ public class PatientServlet extends HttpServlet {
             messages.put("height", "Please enter height");
         } else if (!height.matches("\\d+")) {
             messages.put("height", "Please enter digits only");
+        } else {
+            patient.setHeight(Integer.parseInt(height));
         }
 
         // Get and validate classification.
         String classification = request.getParameter("classification");
         if (classification == null || classification.trim().isEmpty()) {
             messages.put("classification", "Please select classification");
+        } else {
+            patient.setClassification(classification.toUpperCase());
         }
 
         // Get and validate menarche.
@@ -204,36 +223,46 @@ public class PatientServlet extends HttpServlet {
             messages.put("menarche", "Please enter menarche");
         } else if (!height.matches("\\d+")) {
             messages.put("menarche", "Please enter digits only");
+        } else {
+            patient.setMenarche(Integer.parseInt(menarche));
         }
 
         // Get and validate menopause.
         String menopause = request.getParameter("menopause");
         if (menopause == null || menopause.trim().isEmpty()) {
             messages.put("menopause", "Please pick menopause");
+        } else {
+            patient.setMenopause(menopause.equals("yes"));
         }
 
-        // Get and validate classification.
+        // Get and validate menopauseType.
         String menopauseType = request.getParameter("menopauseType");
         if (menopauseType == null || menopauseType.trim().isEmpty()) {
             messages.put("menopauseType", "Please select menopause type");
+        } else {
+            patient.setMenopauseType(menopauseType.toUpperCase());
         }
 
         // No validation errors? Do the business job!
         if (messages.isEmpty()) {
-            Patient newPatient = new Patient(
-                    Integer.parseInt(age),
-                    Integer.parseInt(weight),
-                    Integer.parseInt(height),
-                    classification.toUpperCase(),
-                    Integer.parseInt(menarche),
-                    menopause.equals("yes"),
-                    menopauseType.toUpperCase()
-            );
-            if (patientDAO.insert(newPatient) == 1) {
-                messages.put("success", "Patient has been added successfully");
+//            Patient newPatient = new Patient(
+//                    Integer.parseInt(age),
+//                    Integer.parseInt(weight),
+//                    Integer.parseInt(height),
+//                    classification.toUpperCase(),
+//                    Integer.parseInt(menarche),
+//                    menopause.equals("yes"),
+//                    menopauseType.toUpperCase()
+//            );
+            // Calculate the non-fillable properties
+            patient.setAgeGroup(patient.getAge());
+            patient.setImc(patient.getWeight(), patient.getHeight());
+            if (patientDAO.insert(patient) == 1) {
+                messages.put("success", "Patient has been added successfully.");
             }
         } else {
             messages.put("error", "Please check the fields");
+            request.setAttribute("patient", patient);
         }
 
         // Keep showing the form, no matter success or error.
@@ -286,7 +315,7 @@ public class PatientServlet extends HttpServlet {
                 fields[9]
         );
 
-        request.setAttribute("patient_to_modify", patientToBeModified);
+        request.setAttribute("patient", patientToBeModified);
 
     }
 
@@ -333,6 +362,8 @@ public class PatientServlet extends HttpServlet {
             request.setAttribute("error", "Patient has not been modified.");
         }
 
+        showModifyButtons(request, response);
+
     }
 
     /**
@@ -366,14 +397,14 @@ public class PatientServlet extends HttpServlet {
         int rowsAffected = patientDAO.delete(patientToBeDeleted);
 
         if (rowsAffected > 0) {
-            messages.put("success", "Patient has been deleted successfully");
+            messages.put("success", "Patient has been deleted successfully.");
         } else {
             switch (rowsAffected) {
                 case -1:
-                    messages.put("error", "Patient has not been deleted due to a constraint fail");
+                    messages.put("error", "Patient has not been deleted due to a constraint fail.");
                     break;
                 case -2:
-                    messages.put("error", "Patient has not been deleted due to an error, contact administrator");
+                    messages.put("error", "Patient has not been deleted due to an error, contact administrator.");
                     break;
                 default:
                     showDeleteButtons(request, response);
@@ -417,11 +448,11 @@ public class PatientServlet extends HttpServlet {
 //        dispatcher.forward(request, response);
         //-------------
         // Get form fields from the row-inline-form
-        String classification = request.getParameter("classification").toUpperCase();
-        String menopause = request.getParameter("menopause").toUpperCase();
-        String menopauseType = request.getParameter("menopauseType").toUpperCase();
+        String classification = request.getParameter("classification");
+        String menopause = request.getParameter("menopause");
+        String menopauseType = request.getParameter("menopauseType");
 
-        // Patient construction
+        // Filter construction
         Patient patientAsFilter = new Patient();
         patientAsFilter.setClassification(classification);
         patientAsFilter.setMenopause(menopause.equals("YES"));
@@ -430,14 +461,10 @@ public class PatientServlet extends HttpServlet {
         // Filtering
         filteredPatients = patientDAO.filter(patientAsFilter);
         request.setAttribute("patients", filteredPatients);
-        request.setAttribute("success", String.format("Filter result: %d rows", filteredPatients.size()));
+        messages.put("success", String.format("Patients filtered: %d", filteredPatients.size()));
 
-        // Set session attribute to control if the createPDF button has to be displayed or not
-        HttpSession session = request.getSession();
-        session.setAttribute("filtered", true);
-
-        // Finally reload patient page
-        request.getRequestDispatcher("patients.jsp").forward(request, response);
+        // Set attribute to control if the createPDF button has to be displayed or not
+        request.setAttribute("filtered", true);
 
     }
 
@@ -483,6 +510,8 @@ public class PatientServlet extends HttpServlet {
      */
     private void createPDF(HttpServletRequest request, HttpServletResponse response) {
 
+        // TODO
+        
         try {
             Document document = new Document();
             PdfWriter.getInstance(document, new FileOutputStream(FILE));
@@ -490,16 +519,10 @@ public class PatientServlet extends HttpServlet {
             // Open FILE
             document.open();
 
-            // Add metadata
-            document.addTitle("My first PDF");
-            document.addSubject("Using iText");
-            document.addKeywords("Java, PDF, iText");
-            document.addAuthor("Lars Vogel");
-            document.addCreator("Lars Vogel");
-
-            // 
-            Image img = Image.getInstance("src/images/icon-bone.jpg");
-            document.add(img);
+            // Add data to FILE
+            addMetaData(document);
+            addTitlePage(document);
+            addContent(document);
 
             // Close FILE
             document.close();
@@ -507,9 +530,129 @@ public class PatientServlet extends HttpServlet {
             e.printStackTrace();
         }
 
+        // Add metadata
+        // Add ...
+//            filteredPatients AS A TABLE...
     }
 
-    // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
+    // iText allows to add metadata to the PDF which can be viewed in your Adobe
+    // Reader
+    // under File -> Properties
+    private static void addMetaData(Document document) {
+        document.addTitle("Filtered Patients");
+        document.addSubject("Using iText");
+        document.addKeywords("Java, PDF, iText");
+        document.addAuthor("Alejandro Asensio");
+        document.addCreator("Alejandro Asensio");
+    }
+
+    private static void addTitlePage(Document document)
+            throws DocumentException {
+        Paragraph preface = new Paragraph();
+        // We add one empty line
+        addEmptyLine(preface, 1);
+        // Lets write a big header
+        preface.add(new Paragraph("Title of the document", font));
+
+        addEmptyLine(preface, 1);
+        // Will create: Report generated by: _name, _date
+        preface.add(new Paragraph(
+                "Report generated by: " + System.getProperty("user.name") + ", " + new Date(), font));
+        addEmptyLine(preface, 3);
+        preface.add(new Paragraph(
+                "This document describes something which is very important ", font));
+
+        addEmptyLine(preface, 8);
+
+        preface.add(new Paragraph(
+                "This document is a preliminary version and not subject to your license agreement or any other agreement with vogella.com ;-).", font));
+
+        document.add(preface);
+        // Start a new page
+//        document.newPage();
+    }
+
+    private static void addContent(Document document) throws DocumentException, BadElementException, IOException {
+        Image img = Image.getInstance("src/images/icon-bone.jpg");
+        document.add(img);
+
+        Anchor anchor = new Anchor("First Chapter", font);
+        anchor.setName("First Chapter");
+
+        // Second parameter is the number of the chapter
+        Chapter catPart = new Chapter(new Paragraph(anchor), 1);
+
+        Paragraph subPara = new Paragraph("Subcategory 1", font);
+        Section subCatPart = catPart.addSection(subPara);
+        subCatPart.add(new Paragraph("Hello"));
+
+        subPara = new Paragraph("Subcategory 2", font);
+        subCatPart = catPart.addSection(subPara);
+        subCatPart.add(new Paragraph("Paragraph 1"));
+        subCatPart.add(new Paragraph("Paragraph 2"));
+        subCatPart.add(new Paragraph("Paragraph 3"));
+
+        // add a table
+        createTable(subCatPart);
+
+        // now add all this to the document
+        document.add(catPart);
+
+        // Next section
+        anchor = new Anchor("Second Chapter", font);
+        anchor.setName("Second Chapter");
+
+        // Second parameter is the number of the chapter
+        catPart = new Chapter(new Paragraph(anchor), 1);
+
+        subPara = new Paragraph("Subcategory", font);
+        subCatPart = catPart.addSection(subPara);
+        subCatPart.add(new Paragraph("This is a very important message"));
+
+        // now add all this to the document
+        document.add(catPart);
+
+    }
+
+    private static void createTable(Section subCatPart)
+            throws BadElementException {
+        PdfPTable table = new PdfPTable(3);
+
+        // t.setBorderColor(BaseColor.GRAY);
+        // t.setPadding(4);
+        // t.setSpacing(4);
+        // t.setBorderWidth(1);
+        PdfPCell c1 = new PdfPCell(new Phrase("Table Header 1"));
+        c1.setHorizontalAlignment(Element.ALIGN_CENTER);
+        table.addCell(c1);
+
+        c1 = new PdfPCell(new Phrase("Table Header 2"));
+        c1.setHorizontalAlignment(Element.ALIGN_CENTER);
+        table.addCell(c1);
+
+        c1 = new PdfPCell(new Phrase("Table Header 3"));
+        c1.setHorizontalAlignment(Element.ALIGN_CENTER);
+        table.addCell(c1);
+        table.setHeaderRows(1);
+
+        table.addCell("1.0");
+        table.addCell("1.1");
+        table.addCell("1.2");
+        table.addCell("2.1");
+        table.addCell("2.2");
+        table.addCell("2.3");
+
+        subCatPart.add(table);
+
+    }
+
+    private static void addEmptyLine(Paragraph paragraph, int number) {
+        for (int i = 0; i < number; i++) {
+            paragraph.add(new Paragraph(" "));
+        }
+    }
+
+// <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
     /**
      * Handles the HTTP <code>GET</code> method.
      *

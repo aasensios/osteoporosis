@@ -22,6 +22,21 @@
     <br>
     <main class="container" role="main">
       <div class="starter-template">
+        
+        <!-- Messages: Success or Error -->
+        <c:choose>
+            <c:when test="${messages.success != null}">
+                <span class="alert alert-success" role="alert">${messages.success}</span>
+            </c:when>
+            <c:when test="${messages.error != null}">
+                <span class="alert alert-danger" role="alert">${messages.error}</span>
+            </c:when>
+            <c:otherwise>
+            </c:otherwise>
+        </c:choose>
+        <br>
+        <br>
+        
         <!-- List all users with modify and delete buttons if needed -->
         <c:if test="${users != null}">
             <table class="table table-striped">
@@ -31,17 +46,17 @@
                   <th scope="col">Password</th>
                   <th scope="col">Role</th>
                     <c:choose>
-                        <c:when test="${param.action == 'modify_form'}">
+                        <c:when test="${showModifyButtons}">
                         <th scope="col">Modify User</th>
                         </c:when>
-                        <c:when test="${param.action == 'delete_form'}">
+                        <c:when test="${showDeleteButtons}">
                         <th scope="col">Delete User</th>
                         </c:when>
                     </c:choose>
                 </tr>
               </thead>
               <tbody>
-                <c:if test="${param.showFormAdd != null}">
+                <c:if test="${showFormAdd}">
                 <form action="users" method="POST">
                   <tr>
                     <td scope="row"><input type="text" placeholder="Username" name="username"></td>
@@ -65,15 +80,15 @@
                     <td scope="row">${user.role}</td>
                     <!--Modify / Delete buttons appear if the according option is clicked-->
                     <c:choose>
-                        <c:when test="${param.action == 'modify_form'}">
+                        <c:when test="${showModifyButtons}">
                             <td scope="row">
                               <button class="btn btn-warning" type="submit" value="${user.username};${user.password};${user.role}" name="user">Modify</button>
                               <input type="hidden" name="action" value="user_to_modify"/>
                             </td>
                         </c:when>
-                        <c:when test="${param.action == 'delete_form'}">
+                        <c:when test="${showDeleteButtons}">
                             <td scope="row">
-                              <button class="btn btn-danger" type="submit" value="${user.username};${user.password};${user.role}" name="user" onlcick="confirm(Are you sure?)">Delete</button>
+                              <button class="btn btn-danger" type="submit" value="${user.username};${user.password};${user.role}" name="user" onclick="confirm(Are you sure?)">Delete</button>
                               <input type="hidden" name="action" value="user_to_delete"/>
                             </td>
                         </c:when>
@@ -85,26 +100,32 @@
             </table>
         </c:if>
 
-        <!-- User Form (add and modify) -->
-        <c:if test="${param.showFormAdd != null || user_to_modify != null}" >
+        <!-- Forms: Add and Modify -->
+        <c:if test="${showFormAdd || user_to_modify != null}" >
             <form action="users" method="POST">
               <div class="form-group row">
                 <label for="inputUsername" class="col-sm-3">Username:</label>
-                <input type="text" class="form-control col-sm-9" id="inputUsername" name="username" placeholder="Username" 
+                <input type="text" class="form-control col-sm-6" id="inputUsername" name="username" placeholder="Username" 
                        value="<c:out value="${user_to_modify.username}"/>">
-              </div>
-              <div class="form-group row">
-                <label for="inputPassword" class="col-sm-3">Password:</label>
-                <input type="password" class="form-control col-sm-9" id="inputPassword" name="password" placeholder="Password">
-              </div>
-              <div class="form-group row">
-                <label for="inputPasswordRepeat" class="col-sm-3">Repeat password:</label>
-                <input type="password" class="form-control col-sm-9" id="inputPasswordRepeat" name="passwordRepeat" placeholder="Repeat password">
-              </div>
+                <c:if test="${messages != null}"><span class="text-danger col-sm-3">${messages.username}</span></c:if>
+
+                </div>
+                <div class="form-group row">
+                  <label for="inputPassword" class="col-sm-3">Password:</label>
+                  <input type="password" class="form-control col-sm-6" id="inputPassword" name="password" placeholder="Password">
+                <c:if test="${messages != null}"><span class="text-danger col-sm-3">${messages.password}</span></c:if>
+
+                </div>
+                <div class="form-group row">
+                  <label for="inputPasswordRepeat" class="col-sm-3">Repeat password:</label>
+                  <input type="password" class="form-control col-sm-6" id="inputPasswordRepeat" name="passwordRepeat" placeholder="Repeat password">
+                <c:if test="${messages != null}"><span class="text-danger col-sm-3">${messages.passwordRepeat}</span></c:if>
+
+                </div>
               <c:if test="${user_to_modify != null}">
                   <div class="form-group row">
                     <label for="inputRole" class="col-sm-3">Role:</label>
-                    <select class="form-control col-sm-9 custom-select" id="inputRole" name="role">
+                    <select class="form-control col-sm-6 custom-select" id="inputRole" name="role">
                       <option value="">Choose...</option>
                       <option value="basic">Basic</option>
                       <option value="admin">Admin</option>
@@ -112,7 +133,7 @@
                   </div>
               </c:if>
               <c:choose>
-                  <c:when test="${param.showFormAdd != null}">
+                  <c:when test="${showFormAdd}">
                       <button type="submit" class="btn btn-primary" value="add" name="action">Add User</button>
                   </c:when>
                   <c:when test="${user_to_modify != null}">
@@ -125,17 +146,6 @@
             </form>
         </c:if>
 
-        <!-- Messages -->
-        <c:choose>
-            <c:when test="${success != null}">
-                <div class="alert alert-success" role="alert">${success}</div>
-            </c:when>
-            <c:when test="${error != null}">
-                <div class="alert alert-danger" role="alert">${error}</div>
-            </c:when>
-            <c:otherwise>
-            </c:otherwise>
-        </c:choose>
       </div>
     </main>
     <jsp:include page="html/footer.html"/>
