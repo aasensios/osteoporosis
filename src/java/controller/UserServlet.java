@@ -106,7 +106,7 @@ public class UserServlet extends HttpServlet {
         }
 
         // Refresh the users JSP page
-//        request.getRequestDispatcher("users.jsp").forward(request, response);
+        request.getRequestDispatcher("users.jsp").forward(request, response);
     }
 
     /**
@@ -208,13 +208,17 @@ public class UserServlet extends HttpServlet {
     private void addUser(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-        // Get form fields
+        // User construction
+        User user = new User();
+
         // Get and validate username.
         String username = request.getParameter("username");
         if (username == null || username.trim().isEmpty()) {
             messages.put("name", "Please enter username");
         } else if (!username.matches("\\p{Alnum}+")) {
             messages.put("username", "Please enter alphanumeric characters only");
+        } else {
+            user.setUsername(username.toLowerCase());
         }
 
         // Get and validate password.
@@ -225,28 +229,30 @@ public class UserServlet extends HttpServlet {
             messages.put("password", "Password must be at least 3 characters long");
         }
 
-        // Get and validate password.
+        // Get and validate passwordRepeat.
         String passwordRepeat = request.getParameter("passwordRepeat");
         if (passwordRepeat == null || passwordRepeat.trim().isEmpty()) {
             messages.put("passwordRepeat", "Please repeat password");
         } else if (!passwordRepeat.equals(password)) {
             messages.put("passwordRepeat", "Passwords does not match");
+        } else {
+            user.setPassword(password);
         }
 
+        // Set role by default
         String role = defaultRole;
+        user.setRole(role);
 
-        // User construction
-        User newUser = new User(
-                username.toLowerCase(),
-                password,
-                role
-        );
-
-        // Insert user into database
-        if (userDAO.insert(newUser) == 1) {
-            messages.put("success", "User has been inserted successfully");
+        if (messages.isEmpty()) {
+            // Insert user into database
+            if (userDAO.insert(user) == 1) {
+                messages.put("success", "User has been inserted successfully");
+            } else {
+                messages.put("error", "User has not been inserted");
+            }
         } else {
-            messages.put("error", "User has not been inserted");
+            messages.put("error", "Please check the fields");
+            request.setAttribute("patient", user);
         }
 
         request.getRequestDispatcher("users.jsp").forward(request, response);
