@@ -18,7 +18,6 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import model.User;
 import model.persist.UserDAO;
-import util.Validator;
 
 /**
  * UserServlet
@@ -106,7 +105,7 @@ public class UserServlet extends HttpServlet {
         }
 
         // Refresh the users JSP page
-        request.getRequestDispatcher("users.jsp").forward(request, response);
+//        request.getRequestDispatcher("users.jsp").forward(request, response);
     }
 
     /**

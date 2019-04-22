@@ -117,7 +117,7 @@
                             </label>
                           </div>
                           <div class="form-check">
-                            <input class="form-check-input" type="radio" name="menopause" value="no" checked>
+                            <input class="form-check-input" type="radio" name="menopause" value="no">
                             <label class="form-check-label">
                               NO
                             </label>
@@ -166,7 +166,7 @@
                             </c:when>
                             <c:when test="${showDeleteButtons}">
                                 <td scope="row">
-                                  <button class="btn btn-danger" type="submit" value="${patient.registerId};${patient.age};${patient.ageGroup};${patient.weight};${patient.height};${patient.imc};${patient.classification};${patient.menarche};${patient.menopause};${patient.menopauseType}" name="patient" onclick="confirm(Are you sure?)">Delete</button>
+                                  <button class="btn btn-danger" type="submit" value="${patient.registerId};${patient.age};${patient.ageGroup};${patient.weight};${patient.height};${patient.imc};${patient.classification};${patient.menarche};${patient.menopause};${patient.menopauseType}" name="patient" onclick="return confirm(Are you sure?)">Delete</button>
                                   <input type="hidden" name="action" value="patient_to_delete"/>
                                 </td>
                             </c:when>

@@ -147,7 +147,7 @@ public class PatientDAO {
      * @return 1 if success, -1 if constraint fail, -2 if SQL exception occurs
      */
     public int delete(Patient patient) {
-        
+
         int rowsAffected = 0;
 
         try (
@@ -161,17 +161,17 @@ public class PatientDAO {
         }
 
         return rowsAffected;
-        
+
     }
 
     /**
      * Filters all the patients by the properties of a given patient passed as
      * parameter.
      *
-     * @param filterPatient
+     * @param patientAsFilter
      * @return
      */
-    public ArrayList<Patient> filter(Patient filterPatient) {
+    public ArrayList<Patient> filter(Patient patientAsFilter) {
 
         ArrayList<Patient> patients = new ArrayList<>();
 
@@ -181,9 +181,41 @@ public class PatientDAO {
                 Connection conn = dataSource.getConnection();
                 PreparedStatement pst = conn.prepareStatement(getQuery("FILTER"));) {
 
-            pst.setString(1, filterPatient.getClassification());
-            pst.setBoolean(2, filterPatient.getMenopause());
-            pst.setString(3, filterPatient.getMenopauseType());
+            // Get the values
+            String classification = patientAsFilter.getClassification();
+            Boolean menopause = patientAsFilter.getMenopause();
+            String menopauseType = patientAsFilter.getMenopauseType();
+
+            // Prepare a string variable for the WHERE clause for the SQL query
+            String where = "";
+
+            // Full null case
+            if (classification == null
+                    && menopause == null
+                    && menopauseType == null) {
+                where += "";
+            } else {
+                where += "WHERE";
+                if (classification != null) {
+                    where += String.format(" classification=%s", classification);
+                }
+                if (menopause != null) {
+                    int menopauseInt = menopause ? 1 : 0;
+                    where += String.format(" AND menopause=%d", menopauseInt);
+                }
+                if (menopauseType != null) {
+                    where += String.format(" AND menopauseType=%s", menopauseType);
+                }
+            }
+
+            // NEW WAY Assign the where clause to the prepared statement
+            // ? === WHERE (classification=... AND menopause=... AND menopauseType=...)
+//            pst.setString(1, where);
+            
+            // OLD WAY
+            pst.setString(1, classification);
+            pst.setBoolean(2, menopause);
+            pst.setString(3, menopauseType);
 
             // executeQuery without parameters because it's a prepared statement
             ResultSet resultSet = pst.executeQuery();
